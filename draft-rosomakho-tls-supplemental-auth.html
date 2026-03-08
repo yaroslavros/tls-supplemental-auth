@@ -7,13 +7,14 @@
 <title>Supplemental Authentication in TLS 1.3</title>
 <meta content="Yaroslav Rosomakho" name="author">
 <meta content="
-       TODO Abstract 
+       TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions. 
+       This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange. 
     " name="description">
 <meta content="xml2rfc 3.31.0" name="generator">
 <meta content="tls" name="keyword">
 <meta content="supplemental authentication" name="keyword">
 <meta content="secondary certificates" name="keyword">
-<meta content="draft-rosomakho-tls-supplemental-auth" name="ietf.draft">
+<meta content="draft-rosomakho-tls-supplemental-auth-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.31.0
     Python 3.12.12
@@ -1061,7 +1062,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Transport Layer Security</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-rosomakho-tls-supplemental-auth</dd>
+<dd class="internet-draft">draft-rosomakho-tls-supplemental-auth-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2026-03-08" class="published">8 March 2026</time>
@@ -1082,7 +1083,8 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">Supplemental Authentication in TLS 1.3</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">TODO Abstract<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1091,7 +1093,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
         The latest revision of this draft can be found at <span><a href="https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html">https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-rosomakho-tls-supplemental/">https://datatracker.ietf.org/doc/draft-rosomakho-tls-supplemental/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-rosomakho-tls-supplemental-auth/">https://datatracker.ietf.org/doc/draft-rosomakho-tls-supplemental-auth/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
         Transport Layer Security Working Group mailing list (<span><a href="mailto:tls@ietf.org">mailto:tls@ietf.org</a></span>),
@@ -1155,19 +1157,94 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-overview-of-supplemental-au" class="internal xref">Overview of Supplemental Authentication</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-server-supplemental-authent" class="internal xref">Server Supplemental Authentication Example</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-client-supplemental-authent" class="internal xref">Client Supplemental Authentication Example</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-the-supplemental_certificat" class="internal xref">The supplemental_certificate_requests Extension</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-the-supplemental_certificate" class="internal xref">The supplemental_certificate TLS flag</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-use-in-the-main-handshake" class="internal xref">Use in the Main Handshake</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-use-in-supplemental-authent" class="internal xref">Use in Supplemental Authentication Certificates</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-supplemental-authentication" class="internal xref">Supplemental Authentication Flights</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-record-protection" class="internal xref">Record Protection</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-transcript-construction" class="internal xref">Transcript Construction</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-request-matching" class="internal xref">Request Matching</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-message-ordering" class="internal xref">Message Ordering</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-authentication-binding" class="internal xref">Authentication Binding</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-message-ordering-and-integr" class="internal xref">Message Ordering and Integrity</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-authorization-semantics" class="internal xref">Authorization Semantics</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
+                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-resource-consumption" class="internal xref">Resource Consumption</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
+                <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-confidentiality-of-authenti" class="internal xref">Confidentiality of Authentication Requests</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-tls-extension" class="internal xref">TLS Extension</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-tls-flag" class="internal xref">TLS Flag</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1178,7 +1255,14 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">TODO Introduction<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">TLS 1.3 <span>[<a href="#TLS" class="cite xref">TLS</a>]</span> allows endpoints to authenticate using certificates during the handshake. A server presents its certificate chain in the handshake <code>Certificate</code> message, and the server may request a client certificate using the <code>CertificateRequest</code> message. TLS 1.3 also defines post-handshake client authentication, which allows a server to request a client certificate after the handshake has completed.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Some deployments require presenting multiple certificate-based authentication statements bound to the same TLS connection. Examples include separating device and user authentication, presenting attestation evidence in addition to a device identity, or providing multiple certificate chains during cryptographic transitions such as migration to post-quantum algorithms. In these scenarios, multiple authentication statements may need to be associated with a single secure connection.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">While TLS 1.3 post-handshake authentication can be used to request additional client certificates, it is rarely deployed in practice. Post-handshake authentication is explicitly prohibited in HTTP/2 (<span><a href="https://rfc-editor.org/rfc/rfc9113#section-9.2.3" class="relref">Section 9.2.3</a> of [<a href="#H2" class="cite xref">H2</a>]</span>) and QUIC (<span><a href="https://rfc-editor.org/rfc/rfc9001#section-4.4" class="relref">Section 4.4</a> of [<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">This document defines Supplemental Authentication for TLS 1.3. Supplemental authentication allows endpoints to present additional certificate-based authentication messages immediately after the handshake completes. These additional authentication statements are cryptographically bound to the TLS connection and reuse the existing <code>Certificate</code>, <code>CertificateVerify</code>, and <code>Finished</code> message structure defined by TLS 1.3.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using a new <code>supplemental_certificate_requests</code> extension. When accepted, one or more supplemental authentication flights may be sent
+after the handshake and before the sender transmits application data.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">Supplemental authentication extends the existing TLS certificate authentication mechanism. It does not replace primary certificate authentication performed during the handshake and does not change the semantics of TLS authentication or authorization decisions, which remain application-specific.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">The mechanism defined in this document can also be used with DTLS 1.3 <span>[<a href="#DTLS" class="cite xref">DTLS</a>]</span> and protocols that use the TLS 1.3 handshake such as QUIC <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>.<a href="#section-1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1192,37 +1276,474 @@ described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</s
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="security-considerations">
+<div id="overview-of-supplemental-authentication">
 <section id="section-3">
-      <h2 id="name-security-considerations">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      <h2 id="name-overview-of-supplemental-au">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-overview-of-supplemental-au" class="section-name selfRef">Overview of Supplemental Authentication</a>
       </h2>
-<p id="section-3-1">TODO Security<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-1">Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection. These additional authentication statements are exchanged immediately after the TLS handshake and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the <code>supplemental_certificate_requests</code> extension. This extension can appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages and contains <code>SupplementalCertificateRequest</code> structures that describe the requested authentication contexts and associated parameters.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">A peer that is willing to provide supplemental authentication indicates acceptance by including the <code>supplemental_certificate</code> extension in its main handshake <code>Certificate</code> message. The presence of this extension indicates that the sender will transmit at least one additional authentication flight after the handshake completes.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">Each supplemental authentication flight consists of the TLS 1.3 authentication message sequence:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<span id="name-tls-13-authentication-messa"></span><div id="fig-tls-auth-messages">
+<figure id="figure-1">
+        <div class="alignLeft art-text artwork" id="section-3-5.1">
+<pre>
+Certificate
+CertificateVerify
+Finished
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-tls-13-authentication-messa" class="selfRef">TLS 1.3 authentication message sequence</a>
+        </figcaption></figure>
+</div>
+<p id="section-3-6">These messages are processed using the same cryptographic mechanisms defined for certificate authentication in TLS 1.3. Supplemental authentication flights are sent after the handshake <code>Finished</code> message and are protected using the established connection keys.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">Multiple supplemental authentication flights may be sent by a single endpoint. If the <code>supplemental_certificate</code> extension is present in a supplemental <code>Certificate</code> message, it indicates that another supplemental authentication flight will follow. If the extension is absent, the <code>Certificate</code> message is the final supplemental authentication flight sent by that endpoint.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">Supplemental authentication flights from a given sender <span class="bcp14">MUST</span> form a contiguous sequence of handshake messages. An endpoint <span class="bcp14">MUST NOT</span> interleave application data or other TLS messages with its supplemental authentication flights.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<p id="section-3-9">Each supplemental authentication flight satisfies at most one <code>SupplementalCertificateRequest</code>. A sender <span class="bcp14">MAY</span> transmit multiple supplemental authentication flights that satisfy the same request, provided that the number of flights does not exceed the <code>max_certificates</code> value specified in the corresponding request.<a href="#section-3-9" class="pilcrow">¶</a></p>
+<p id="section-3-10">Supplemental authentication flights for different request contexts <span class="bcp14">MAY</span> appear in any order. The receiver determines which <code>SupplementalCertificateRequest</code>, if any, a supplemental authentication flight satisfies based on the <code>certificate_request_context</code> value.<a href="#section-3-10" class="pilcrow">¶</a></p>
+<p id="section-3-11">The following sections illustrate typical message flows.<a href="#section-3-11" class="pilcrow">¶</a></p>
+<div id="server-supplemental-authentication-example">
+<section id="section-3.1">
+        <h3 id="name-server-supplemental-authent">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-server-supplemental-authent" class="section-name selfRef">Server Supplemental Authentication Example</a>
+        </h3>
+<p id="section-3.1-1">In this example, the client requests additional authentication statements from the server using the <code>supplemental_certificate_requests</code> extension in the <code>ClientHello</code>. The server indicates acceptance in its handshake <code>Certificate</code> message and sends two supplemental authentication flights after the handshake.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<span id="name-server-supplemental-authenti"></span><div id="fig-tls-server-supplemental-auth-example">
+<figure id="figure-2">
+          <div id="section-3.1-2.1">
+            <div class="alignLeft art-svg artwork" id="section-3.1-2.1.1">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="368" width="592" viewBox="0 0 592 368" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px" stroke-linecap="round">
+                <path d="M 8,48 L 48,48" fill="none" stroke="black"></path>
+                <path d="M 400,48 L 440,48" fill="none" stroke="black"></path>
+                <path d="M 192,112 L 256,112" fill="none" stroke="black"></path>
+                <path d="M 192,336 L 256,336" fill="none" stroke="black"></path>
+                <polygon class="arrowhead" points="264,112 252,106.4 252,117.6" fill="black" transform="rotate(0,256,112)"></polygon>
+                <polygon class="arrowhead" points="200,336 188,330.4 188,341.6" fill="black" transform="rotate(180,192,336)"></polygon>
+                <g class="text">
+                  <text x="28" y="36">Client</text>
+                  <text x="420" y="36">Server</text>
+                  <text x="48" y="84">ClientHello</text>
+                  <text x="24" y="100">+</text>
+                  <text x="168" y="100">supplemental_certificate_requests</text>
+                  <text x="408" y="132">ServerHello</text>
+                  <text x="440" y="148">EncryptedExtensions</text>
+                  <text x="408" y="164">Certificate</text>
+                  <text x="384" y="180">+</text>
+                  <text x="492" y="180">supplemental_certificate</text>
+                  <text x="432" y="196">CertificateVerify</text>
+                  <text x="396" y="212">Finished</text>
+                  <text x="408" y="228">Certificate</text>
+                  <text x="384" y="244">+</text>
+                  <text x="492" y="244">supplemental_certificate</text>
+                  <text x="432" y="260">CertificateVerify</text>
+                  <text x="396" y="276">Finished</text>
+                  <text x="408" y="292">Certificate</text>
+                  <text x="432" y="308">CertificateVerify</text>
+                  <text x="396" y="324">Finished</text>
+                </g>
+              </svg><a href="#section-3.1-2.1.1" class="pilcrow">¶</a>
+</div>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-server-supplemental-authenti" class="selfRef">Server Supplemental Authentication example</a>
+          </figcaption></figure>
+</div>
+</section>
+</div>
+<div id="client-supplemental-authentication-example">
+<section id="section-3.2">
+        <h3 id="name-client-supplemental-authent">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-client-supplemental-authent" class="section-name selfRef">Client Supplemental Authentication Example</a>
+        </h3>
+<p id="section-3.2-1">In this example, the server requests additional authentication statements from the client using the <code>supplemental_certificate_requests</code> extension in the <code>CertificateRequest</code> message. The client responds with two supplemental authentication flights after the handshake.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<span id="name-client-supplemental-authenti"></span><div id="fig-tls-client-supplemental-auth-example">
+<figure id="figure-3">
+          <div id="section-3.2-2.1">
+            <div class="alignLeft art-svg artwork" id="section-3.2-2.1.1">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="448" width="664" viewBox="0 0 664 448" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px" stroke-linecap="round">
+                <path d="M 8,48 L 48,48" fill="none" stroke="black"></path>
+                <path d="M 400,48 L 440,48" fill="none" stroke="black"></path>
+                <path d="M 192,96 L 256,96" fill="none" stroke="black"></path>
+                <path d="M 192,224 L 256,224" fill="none" stroke="black"></path>
+                <path d="M 192,416 L 256,416" fill="none" stroke="black"></path>
+                <polygon class="arrowhead" points="264,416 252,410.4 252,421.6" fill="black" transform="rotate(0,256,416)"></polygon>
+                <polygon class="arrowhead" points="264,96 252,90.4 252,101.6" fill="black" transform="rotate(0,256,96)"></polygon>
+                <polygon class="arrowhead" points="200,224 188,218.4 188,229.6" fill="black" transform="rotate(180,192,224)"></polygon>
+                <g class="text">
+                  <text x="28" y="36">Client</text>
+                  <text x="420" y="36">Server</text>
+                  <text x="48" y="84">ClientHello</text>
+                  <text x="408" y="116">ServerHello</text>
+                  <text x="440" y="132">EncryptedExtensions</text>
+                  <text x="436" y="148">CertificateRequest</text>
+                  <text x="384" y="164">+</text>
+                  <text x="528" y="164">supplemental_certificate_requests</text>
+                  <text x="408" y="180">Certificate</text>
+                  <text x="432" y="196">CertificateVerify</text>
+                  <text x="396" y="212">Finished</text>
+                  <text x="48" y="244">Certificate</text>
+                  <text x="16" y="260">+</text>
+                  <text x="124" y="260">supplemental_certificate</text>
+                  <text x="72" y="276">CertificateVerify</text>
+                  <text x="36" y="292">Finished</text>
+                  <text x="48" y="308">Certificate</text>
+                  <text x="16" y="324">+</text>
+                  <text x="124" y="324">supplemental_certificate</text>
+                  <text x="72" y="340">CertificateVerify</text>
+                  <text x="36" y="356">Finished</text>
+                  <text x="48" y="372">Certificate</text>
+                  <text x="72" y="388">CertificateVerify</text>
+                  <text x="36" y="404">Finished</text>
+                </g>
+              </svg><a href="#section-3.2-2.1.1" class="pilcrow">¶</a>
+</div>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-client-supplemental-authenti" class="selfRef">Client Supplemental Authentication example</a>
+          </figcaption></figure>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="the-supplementalcertificaterequests-extension">
+<section id="section-4">
+      <h2 id="name-the-supplemental_certificat">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-the-supplemental_certificat" class="section-name selfRef">The supplemental_certificate_requests Extension</a>
+      </h2>
+<p id="section-4-1">The <code>supplemental_certificate_requests</code> TLS extension is used to signal support for supplemental authentication and to optionally request additional certificate-based authentication statements from the peer.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">This extension <span class="bcp14">MAY</span> appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages:
+* When included in a <code>ClientHello</code>, the extension indicates that the client supports supplemental authentication and optionally requests supplemental authentication statements from the server.
+* When included in a <code>CertificateRequest</code>, the extension indicates that the server supports supplemental authentication and optionally requests supplemental authentication statements from the client.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">The extension contains a list of <code>SupplementalCertificateRequest</code> structures describing requested supplemental authentication contexts.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">The extension structure is defined as follows:<a href="#section-4-4" class="pilcrow">¶</a></p>
+<span id="name-supplemental_certificate_re"></span><div id="fig-supplemental-certificate-requests">
+<figure id="figure-4">
+        <div class="alignLeft art-text artwork" id="section-4-5.1">
+<pre>
+struct {
+  SupplementalCertificateRequest requests&lt;0..2^16-1&gt;;
+} SupplementalCertificateRequests;
+
+struct {
+  uint8 max_certificates;
+  opaque certificate_request_context&lt;0..255&gt;;
+  Extension extensions&lt;2..2^16-1&gt;;
+} SupplementalCertificateRequest;
+</pre>
+</div>
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<a href="#name-supplemental_certificate_re" class="selfRef">supplemental_certificate_requests Extension Structure</a>
+        </figcaption></figure>
+</div>
+<p id="section-4-6">The requests field contains zero or more <code>SupplementalCertificateRequest</code> structures.<a href="#section-4-6" class="pilcrow">¶</a></p>
+<p id="section-4-7">If the list is empty, the sender indicates willingness to receive supplemental authentication statements without specifying any particular request contexts.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-8">Each <code>SupplementalCertificateRequest</code> describes a requested supplemental authentication context and the parameters associated with that request.<a href="#section-4-8" class="pilcrow">¶</a></p>
+<p id="section-4-9">The fields of <code>SupplementalCertificateRequest</code> are defined as follows:<a href="#section-4-9" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-10">
+        <dt id="section-4-10.1">
+<strong>max_certificates</strong>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-10.2">
+          <p id="section-4-10.2.1">A limit on the number of supplemental authentication flights that the peer may send in response to this request. The value specifies the maximum number of Certificate authentication flights that may satisfy this request. The value <span class="bcp14">MUST</span> be greater than zero.<a href="#section-4-10.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-4-10.3">
+<strong>certificate_request_context</strong>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-10.4">
+          <p id="section-4-10.4.1">An opaque value used to identify this supplemental authentication request. This value is carried in the <code>certificate_request_context</code> field of the <code>Certificate</code> message sent in response to this request.<a href="#section-4-10.4.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-4-11">Within a single <code>supplemental_certificate_requests</code> extension, each <code>certificate_request_context</code> value <span class="bcp14">MUST</span> be unique. If more than one <code>SupplementalCertificateRequest</code> structure is present, at most one of them <span class="bcp14">MAY</span> use an empty <code>certificate_request_context</code>.<a href="#section-4-11" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-12">
+        <dt id="section-4-12.1">
+<strong>extensions</strong>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-12.2">
+          <p id="section-4-12.2.1">A list of extensions that describe parameters associated with this request. These extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 <code>CertificateRequest</code> message. Only extensions that are valid in a <code>CertificateRequest</code> message <span class="bcp14">MAY</span> appear in this list. The <code>supplemental_certificate_requests</code> extension <span class="bcp14">MUST NOT</span> appear in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>.<a href="#section-4-12.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-4-13">If an extension is not present in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake.<a href="#section-4-13" class="pilcrow">¶</a></p>
+<p id="section-4-14">When the <code>supplemental_certificate_requests</code> extension appears in the <code>ClientHello</code>, the inherited values are taken from the client's
+<code>ClientHello</code>. When the extension appears in a <code>CertificateRequest</code>, the inherited values are taken from the parameters of the enclosing <code>CertificateRequest</code> message.<a href="#section-4-14" class="pilcrow">¶</a></p>
+<p id="section-4-15">A peer receiving the <code>supplemental_certificate_requests</code> extension <span class="bcp14">MAY</span> respond to zero or more of the contained <code>SupplementalCertificateRequest</code> structures. For a given request, the peer <span class="bcp14">MAY</span> send between zero and <code>max_certificates</code> supplemental authentication flights.<a href="#section-4-15" class="pilcrow">¶</a></p>
+<p id="section-4-16">If a peer sends a supplemental authentication flight in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding <code>SupplementalCertificateRequest</code>.<a href="#section-4-16" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="the-supplementalcertificate-tls-flag">
+<section id="section-5">
+      <h2 id="name-the-supplemental_certificate">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-the-supplemental_certificate" class="section-name selfRef">The supplemental_certificate TLS flag</a>
+      </h2>
+<p id="section-5-1">The <code>supplemental_certificate</code> TLS flag signals the use of supplemental authentication.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">This flag is defined as a TLS flag as specified in <span>[<a href="#TLS-FLAGS" class="cite xref">TLS-FLAGS</a>]</span> and may appear in a <code>Certificate</code> message.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">The semantics of this flag depend on the context in which it appears.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<div id="use-in-the-main-handshake">
+<section id="section-5.1">
+        <h3 id="name-use-in-the-main-handshake">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-use-in-the-main-handshake" class="section-name selfRef">Use in the Main Handshake</a>
+        </h3>
+<p id="section-5.1-1">When the <code>supplemental_certificate</code> flag appears in the main handshake <code>Certificate</code> message, it indicates that the sender will transmit at least one additional certificate authentication sequence after the TLS handshake has completed.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">An endpoint <span class="bcp14">MUST NOT</span> set the <code>supplemental_certificate</code> flag in its main handshake <code>Certificate</code> message unless the peer indicated willingness to receive supplemental authentication by including the <code>supplemental_certificate_requests</code> extension.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="use-in-supplemental-authentication-certificates">
+<section id="section-5.2">
+        <h3 id="name-use-in-supplemental-authent">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-use-in-supplemental-authent" class="section-name selfRef">Use in Supplemental Authentication Certificates</a>
+        </h3>
+<p id="section-5.2-1">When the <code>supplemental_certificate</code> flag appears in a <code>Certificate</code> message sent after the handshake, it indicates that another supplemental authentication sequence will follow.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">If the flag is absent from a supplemental <code>Certificate</code> message, that <code>Certificate</code> message is the final supplemental authentication sequence sent by that endpoint.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="supplemental-authentication-flights">
+<section id="section-6">
+      <h2 id="name-supplemental-authentication">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-supplemental-authentication" class="section-name selfRef">Supplemental Authentication Flights</a>
+      </h2>
+<p id="section-6-1">Supplemental authentication is performed using one or more additional certificate authentication sequences exchanged after the TLS handshake has completed.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">Each supplemental authentication sequence consists of the following TLS 1.3 authentication messages:<a href="#section-6-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-3">
+<pre>
+Certificate
+CertificateVerify
+Finished
+</pre><a href="#section-6-3" class="pilcrow">¶</a>
+</div>
+<p id="section-6-4">These messages use the same structure and processing rules as the corresponding TLS 1.3 handshake messages defined in <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<div id="record-protection">
+<section id="section-6.1">
+        <h3 id="name-record-protection">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-record-protection" class="section-name selfRef">Record Protection</a>
+        </h3>
+<p id="section-6.1-1">Supplemental authentication messages are sent after the TLS handshake has completed and are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="transcript-construction">
+<section id="section-6.2">
+        <h3 id="name-transcript-construction">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-transcript-construction" class="section-name selfRef">Transcript Construction</a>
+        </h3>
+<p id="section-6.2-1">Supplemental authentication sequences extend the TLS handshake transcript.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">For the purpose of computing supplemental authentication messages, each endpoint continues the handshake transcript starting from the point at which that endpoint completed the TLS handshake.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">For a server sending supplemental authentication sequences, the transcript used to compute the <code>CertificateVerify</code> signature begins with the handshake transcript that includes all handshake messages up to and including the server's <code>Finished</code> message.<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<p id="section-6.2-4">For a client sending supplemental authentication sequences, the transcript used to compute the <code>CertificateVerify</code> signature begins with the handshake transcript that includes all handshake messages up to and including the client's <code>Finished</code> message. It does not include any supplemental authenticaiton messages that the client may have recieved from the server.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
+<p id="section-6.2-5">Supplemental authentication sequences sent by one endpoint are not included in the transcript used by the peer when constructing its own supplemental authentication messages. Each endpoint therefore signs only its own supplemental authentication sequences together with the TLS handshake transcript.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+<p id="section-6.2-6">For each supplemental authentication sequence, the transcript used to compute the <code>CertificateVerify</code> signature additionally includes:<a href="#section-6.2-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.2-7.1">
+            <p id="section-6.2-7.1.1">all messages from any preceding supplemental authentication sequences sent by this endpoint, and<a href="#section-6.2-7.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-6.2-7.2">
+            <p id="section-6.2-7.2.1">the <code>Certificate</code> message of the current supplemental authentication sequence.<a href="#section-6.2-7.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-6.2-8">The <code>CertificateVerify</code> message is constructed using the same procedure and context string defined for certificate authentication in TLS 1.3 <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>.<a href="#section-6.2-8" class="pilcrow">¶</a></p>
+<p id="section-6.2-9">The <code>Finished</code> message is computed using the same procedure defined in TLS 1.3, with the transcript hash including the <code>Certificate</code> and <code>CertificateVerify</code> messages of the current supplemental authentication sequence and all prior handshake and supplemental authentication messages included in the sender's transcript.<a href="#section-6.2-9" class="pilcrow">¶</a></p>
+<p id="section-6.2-10">Endpoints performing supplemental authentication <span class="bcp14">MUST</span> retain the necessary handshake authentication state required to compute additional <code>CertificateVerify</code> and <code>Finished</code> messages until supplemental authentication has completed.<a href="#section-6.2-10" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="request-matching">
+<section id="section-6.3">
+        <h3 id="name-request-matching">
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-request-matching" class="section-name selfRef">Request Matching</a>
+        </h3>
+<p id="section-6.3-1">If the peer previously sent a <code>supplemental_certificate_requests</code> extension, a supplemental authentication sequence <span class="bcp14">MAY</span> satisfy one of the contained <code>SupplementalCertificateRequest</code> structures.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">If a supplemental authentication sequence is sent in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding SupplementalCertificateRequest.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">A sender <span class="bcp14">MAY</span> transmit multiple supplemental authentication sequences that satisfy the same request, provided that the number of sequences does not exceed the <code>max_certificates</code> value specified in the request.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
+<p id="section-6.3-4">A sender <span class="bcp14">MAY</span> also transmit supplemental authentication sequences that are not associated with any specific request context, in which case the <code>certificate_request_context</code> field of the <code>Certificate</code> message is empty.<a href="#section-6.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="message-ordering">
+<section id="section-6.4">
+        <h3 id="name-message-ordering">
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-message-ordering" class="section-name selfRef">Message Ordering</a>
+        </h3>
+<p id="section-6.4-1">Supplemental authentication sequences sent by an endpoint <span class="bcp14">MUST</span> form a contiguous sequence of TLS handshake messages.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+<p id="section-6.4-2">An endpoint <span class="bcp14">MUST NOT</span> interleave application data or other TLS messages with its supplemental authentication sequences.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
+<p id="section-6.4-3">If the <code>supplemental_certificate</code> TLS flag in a <code>Certificate</code> message indicates that another supplemental authentication sequence will follow, the <code>Finished</code> message completing that sequence <span class="bcp14">MUST</span> be followed by a <code>Certificate</code> message starting the next supplemental authentication sequence.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-4">If any other TLS message is received from that endpoint before the next <code>Certificate</code> message, the receiver <span class="bcp14">MUST</span> abort the connection with an <code>unexpected_message</code> alert.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<div id="authentication-binding">
+<section id="section-7.1">
+        <h3 id="name-authentication-binding">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-authentication-binding" class="section-name selfRef">Authentication Binding</a>
+        </h3>
+<p id="section-7.1-1">Each supplemental authentication sequence includes a <code>CertificateVerify</code> and <code>Finished</code> message constructed using the TLS handshake transcript as described in <a href="#supplemental-authentication-flights" class="auto internal xref">Section 6</a>. This ensures that each supplemental certificate authentication statement is cryptographically bound to the TLS connection and cannot be replayed across connections.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1-2">Supplemental authentication sequences sent by one endpoint are not included in the transcript used by the peer when constructing its own supplemental authentication messages. As a result, supplemental authentication statements produced by each endpoint are independently bound to the TLS handshake transcript rather than to the peer's supplemental authentication statements.<a href="#section-7.1-2" class="pilcrow">¶</a></p>
+<p id="section-7.1-3">This design allows both endpoints to transmit supplemental authentication sequences without introducing additional round-trip latency. Applications that rely on relationships between multiple authentication statements from different endpoints <span class="bcp14">MUST</span> verify those relationships explicitly at the application layer.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="message-ordering-and-integrity">
+<section id="section-7.2">
+        <h3 id="name-message-ordering-and-integr">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-message-ordering-and-integr" class="section-name selfRef">Message Ordering and Integrity</a>
+        </h3>
+<p id="section-7.2-1">The <code>supplemental_certificate</code> TLS flag ensures that supplemental authentication sequences cannot be truncated or reordered without detection. If a <code>Certificate</code> message indicates that another supplemental authentication sequence will follow, the receiver expects the next message from that endpoint to begin the next sequence. Any deviation from this ordering results in a TLS protocol error.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">Because each supplemental authentication sequence includes a <code>Finished</code> message that covers the transcript defined in <a href="#supplemental-authentication-flights" class="auto internal xref">Section 6</a>, modification, removal, or reordering of messages within a sequence is detected by the TLS authentication mechanisms.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authorization-semantics">
+<section id="section-7.3">
+        <h3 id="name-authorization-semantics">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-authorization-semantics" class="section-name selfRef">Authorization Semantics</a>
+        </h3>
+<p id="section-7.3-1">TLS authentication establishes the identity of the peer but does not define how that identity is used for authorization. Supplemental authentication introduces additional authentication statements that may represent different identities or attributes (for example, device identity, user identity, or attestation evidence).<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">Applications using supplemental authentication <span class="bcp14">MUST</span> define how these authentication statements are interpreted and how multiple statements are combined when making authorization decisions. Incorrect or ambiguous interpretation of multiple authentication statements could lead to unintended authorization outcomes.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="resource-consumption">
+<section id="section-7.4">
+        <h3 id="name-resource-consumption">
+<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-resource-consumption" class="section-name selfRef">Resource Consumption</a>
+        </h3>
+<p id="section-7.4-1">A peer can request supplemental authentication using the <code>supplemental_certificate_requests</code> extension. Responding to such requests may require the peer to construct certificate chains and produce signatures. Implementations <span class="bcp14">SHOULD</span> ensure that the processing of supplemental authentication requests is subject to appropriate resource limits and policy checks to prevent denial-of-service conditions.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
+<p id="section-7.4-2">The <code>max_certificates</code> field in <code>SupplementalCertificateRequest</code> limits the number of supplemental authentication sequences that may satisfy a given request. Implementations <span class="bcp14">MUST</span> enforce this limit.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="confidentiality-of-authentication-requests">
+<section id="section-7.5">
+        <h3 id="name-confidentiality-of-authenti">
+<a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-confidentiality-of-authenti" class="section-name selfRef">Confidentiality of Authentication Requests</a>
+        </h3>
+<p id="section-7.5-1">The <code>supplemental_certificate_requests</code> extension may reveal information about the types of authentication statements requested by an endpoint. When this extension appears in the <code>ClientHello</code>, its contents are visible to on-path observers unless the connection uses Encrypted ClientHello <span>[<a href="#ECH" class="cite xref">ECH</a>]</span>.<a href="#section-7.5-1" class="pilcrow">¶</a></p>
+<p id="section-7.5-2">Clients that wish to avoid revealing requested supplemental authentication contexts <span class="bcp14">SHOULD</span> use ECH so that the contents of the inner ClientHello are encrypted.<a href="#section-7.5-2" class="pilcrow">¶</a></p>
+<p id="section-7.5-3">A client <span class="bcp14">MAY</span> include an empty <code>supplemental_certificate_requests</code> extension in the outer ClientHello to indicate support for supplemental authentication while withholding the specific request parameters until the encrypted inner ClientHello is processed.<a href="#section-7.5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-4">
+<section id="section-8">
       <h2 id="name-iana-considerations">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-4-1">This document has no IANA actions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="tls-extension">
+<section id="section-8.1">
+        <h3 id="name-tls-extension">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-tls-extension" class="section-name selfRef">TLS Extension</a>
+        </h3>
+<p id="section-8.1-1">IANA is requested to add the following entry to the "TLS ExtensionType Values" extension registry <span>[<a href="#TLS-Ext-Registry" class="cite xref">TLS-Ext-Registry</a>]</span>:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.1-2.1">
+            <p id="section-8.1-2.1.1">Value: TBD1<a href="#section-8.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.2">
+            <p id="section-8.1-2.2.1">Extension Name: supplemental_certificate_requests<a href="#section-8.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.3">
+            <p id="section-8.1-2.3.1">TLS 1.3: CH, CR<a href="#section-8.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.4">
+            <p id="section-8.1-2.4.1">DTLS-Only: N<a href="#section-8.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.5">
+            <p id="section-8.1-2.5.1">Recommended: Y<a href="#section-8.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.6">
+            <p id="section-8.1-2.6.1">Reference: [This document]<a href="#section-8.1-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
-<div id="sec-normative-references">
-<section id="section-5">
-      <h2 id="name-normative-references">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<div id="tls-flag">
+<section id="section-8.2">
+        <h3 id="name-tls-flag">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-tls-flag" class="section-name selfRef">TLS Flag</a>
+        </h3>
+<p id="section-8.2-1">ANA is requested to add the following entry to the "TLS Flags" extension registry <span>[<a href="#TLS-Ext-Registry" class="cite xref">TLS-Ext-Registry</a>]</span>:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.2-2.1">
+            <p id="section-8.2-2.1.1">Value: TBD2<a href="#section-8.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.2">
+            <p id="section-8.2-2.2.1">Flag Name: supplemental_certificate<a href="#section-8.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.3">
+            <p id="section-8.2-2.3.1">Messages: CT<a href="#section-8.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.4">
+            <p id="section-8.2-2.4.1">Recommended: Y<a href="#section-8.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.5">
+            <p id="section-8.2-2.5.1">Reference: [This document]<a href="#section-8.2-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-9">
+      <h2 id="name-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
+<div id="sec-normative-references">
+<section id="section-9.1">
+        <h3 id="name-normative-references">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
 <dl class="references">
 <dt id="RFC2119">[RFC2119]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-    <dd>
+        <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="TLS">[TLS]</dt>
+        <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-rfc8446bis-14</span>, <time datetime="2025-09-13" class="refDate">13 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14">https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TLS-FLAGS">[TLS-FLAGS]</dt>
+      <dd>
+<span class="refAuthor">Nir, Y.</span>, <span class="refTitle">"A Flags Extension for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-tlsflags-16</span>, <time datetime="2025-09-14" class="refDate">14 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-tlsflags-16">https://datatracker.ietf.org/doc/html/draft-ietf-tls-tlsflags-16</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 </dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-9.2">
+        <h3 id="name-informative-references">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="DTLS">[DTLS]</dt>
+        <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Tschofenig, H.</span>, and <span class="refAuthor">N. Modadugu</span>, <span class="refTitle">"The Datagram Transport Layer Security (DTLS) Protocol Version 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-rfc9147bis-01</span>, <time datetime="2025-10-20" class="refDate">20 October 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc9147bis-01">https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc9147bis-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ECH">[ECH]</dt>
+        <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Oku, K.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"TLS Encrypted Client Hello"</span>, <span class="seriesInfo">RFC 9849</span>, <span class="seriesInfo">DOI 10.17487/RFC9849</span>, <time datetime="2026-03" class="refDate">March 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9849">https://www.rfc-editor.org/rfc/rfc9849</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="H2">[H2]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">C. Benfield, Ed.</span>, <span class="refTitle">"HTTP/2"</span>, <span class="seriesInfo">RFC 9113</span>, <span class="seriesInfo">DOI 10.17487/RFC9113</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9113">https://www.rfc-editor.org/rfc/rfc9113</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-TLS">[QUIC-TLS]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">S. Turner, Ed.</span>, <span class="refTitle">"Using TLS to Secure QUIC"</span>, <span class="seriesInfo">RFC 9001</span>, <span class="seriesInfo">DOI 10.17487/RFC9001</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9001">https://www.rfc-editor.org/rfc/rfc9001</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TLS-Ext-Registry">[TLS-Ext-Registry]</dt>
+      <dd>
+<span class="refAuthor">IANA</span>, <span class="refTitle">"Transport Layer Security (TLS) Extensions"</span>, <time datetime="2026-03" class="refDate">March 2026</time>, <span>&lt;<a href="https://www.iana.org/assignments/tls-extensiontype-values">https://www.iana.org/assignments/tls-extensiontype-values</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
 </section>
 </div>
 <div id="acknowledgments">
