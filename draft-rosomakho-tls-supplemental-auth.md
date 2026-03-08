@@ -17,11 +17,11 @@ keyword:
  - secondary certificates
 venue:
   group: "Transport Layer Security"
-  type: Working Group
-  mail: tls@ietf.org
+  type: "Working Group"
+  mail: "tls@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/tls/"
-  github: yaroslavros/tls-supplemental-auth
-  latest: https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html
+  github: "yaroslavros/tls-supplemental-auth"
+  latest: "https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html"
 
 author:
  -
