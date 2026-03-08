@@ -19,35 +19,35 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
-category: info
+title: "Supplemental Authentication in TLS 1.3"
+abbrev: "Supplemental Authentication in TLS 1.3"
+category: std
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-rosomakho-tls-supplemental-auth
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: WG Working Group
+area: "Security"
+workgroup: "Transport Layer Security"
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
+ - tls
+ - supplemental authentication
+ - secondary certificates
 venue:
-  group: WG
+  group: "Transport Layer Security"
   type: Working Group
-  mail: WG@example.com
-  arch: https://example.com/WG
-  github: USER/REPO
-  latest: https://example.com/LATEST
+  mail: tls@ietf.org
+  arch: "https://mailarchive.ietf.org/arch/browse/tls/"
+  github: yaroslavros/tls-supplemental-auth
+  latest: https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html
 
 author:
  -
-    fullname: Your Name Here
-    organization: Your Organization Here
-    email: your.email@example.com
+    fullname: Yaroslav Rosomakho
+    organization: Zscaler
+    email: yrosomakho@zscaler.com
 
 normative:
 
