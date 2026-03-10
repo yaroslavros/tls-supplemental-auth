@@ -1,0 +1,231 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2026-03-10T01:14:57.422838+00:00",
+  "repo": "yaroslavros/tls-supplemental-auth",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDORhrY5M7xBJ_z",
+      "title": "Handshake Context for supplemental authentication is not defined",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/1",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The draft describes transcript construction for supplemental authentication, but it does not explicitly define this in terms of the Handshake Context defined in Section 4.4 of TLS 1.3. \n\nThe draft should explicitly define the Handshake Context used for supplemental authentication sequences.\n\na) The Handshake Context will differ between the client and the server, consistent with the Table in Section 4.4.\nb) The Handshake Context should include the CertificateRequest message that carries the supplemental_certificate_requests extension.\n\nPreviously transmitted supplemental authentication messages would become part of the evolving Handshake Context, so that each subsequent CertificateVerify and Finished computation includes them.\n\nApart from the definition of the Handshake Context, the construction of CertificateVerify and Finished should follow the same rules defined in Section 4.4 of TLS 1.3.",
+      "createdAt": "2026-03-09T06:21:09Z",
+      "updatedAt": "2026-03-09T07:14:25Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 2,
+      "id": "I_kwDORhrY5M7xBN4y",
+      "title": "Base key for supplemental Finished not specified",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Since supplemental authentication occurs after the handshake, Base Key should be [sender]_application_traffic_secret_N. ",
+      "createdAt": "2026-03-09T06:25:29Z",
+      "updatedAt": "2026-03-09T06:28:17Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 3,
+      "id": "I_kwDORhrY5M7xBT60",
+      "title": "Interaction with KeyUpdate, EKU, and post-handshake client authentication",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/3",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "We should clarify whether KeyUpdate, EKU, and post-handshake client authentication messages can interleave with supplemental authentication sequences, and whether any ordering restrictions are required.",
+      "createdAt": "2026-03-09T06:33:08Z",
+      "updatedAt": "2026-03-09T06:33:08Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 4,
+      "id": "I_kwDORhrY5M7xBYY4",
+      "title": "Compatibility with QUIC post-handshake restrictions",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/4",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "RFC 9001 states that servers MUST NOT use post-handshake client authentication and specifically:\n\nservers MUST NOT send post-handshake TLS CertificateRequest messages, and clients MUST treat receipt of such messages as a connection error of type PROTOCOL_VIOLATION.\n\nSince this draft introduces additional Certificate, CertificateVerify, and Finished authentication sequences after the handshake, it is unclear how this mechanism would operate over QUIC without violating the QUIC-TLS restriction.\n\n",
+      "createdAt": "2026-03-09T06:38:33Z",
+      "updatedAt": "2026-03-09T06:38:33Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "I_kwDORhrY5M7xBa7j",
+      "title": "why allow supplemental_certificate_request which is empty ?",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/5",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-03-09T06:41:46Z",
+      "updatedAt": "2026-03-09T07:13:04Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "I_kwDORhrY5M7xBcfD",
+      "title": "Clarity on cross-flight of supplemental authentication messages",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/6",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-03-09T06:43:50Z",
+      "updatedAt": "2026-03-09T06:43:50Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 7,
+      "id": "I_kwDORhrY5M7xBgTX",
+      "title": "application data be exchanged relative to supplemental authentication",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/7",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Whether application data can be sent after each supplemental authentication sequence, or only after all supplemental authentication has completed ?",
+      "createdAt": "2026-03-09T06:47:44Z",
+      "updatedAt": "2026-03-09T07:12:39Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 8,
+      "id": "I_kwDORhrY5M7xBhFX",
+      "title": "DTLS needs to be specified",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/8",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-03-09T06:48:34Z",
+      "updatedAt": "2026-03-09T06:48:34Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 9,
+      "id": "I_kwDORhrY5M7xBixC",
+      "title": "Identities for subsequent authentication",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/9",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "whether multiple supplemental authentication sequences may represent the same identity using different certificate chains or present alternative identities ?\n\nIt looks like the draft is an alternative mechanism for RFC9261. ",
+      "createdAt": "2026-03-09T06:50:52Z",
+      "updatedAt": "2026-03-09T07:08:38Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 10,
+      "id": "I_kwDORhrY5M7xBkjS",
+      "title": "identity to provide for supplemental authentication",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/10",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "It is not clear how a responding endpoint determines which identity or certificate chain to present, especially when the peers are not managed by the same administrative entity.  It looks the proposed draft will only work in deployments where both the peers are managed by the same entity. ",
+      "createdAt": "2026-03-09T06:53:16Z",
+      "updatedAt": "2026-03-09T06:53:16Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 11,
+      "id": "I_kwDORhrY5M7xBl5k",
+      "title": "Impact of supplemental authentication on the TLS key schedule",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/11",
+      "state": "OPEN",
+      "author": "tireddy2",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "It does not describe the impact of these post-handshake supplemental authentication messages on the TLS key schedule.",
+      "createdAt": "2026-03-09T06:54:59Z",
+      "updatedAt": "2026-03-09T06:54:59Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": []
+}
