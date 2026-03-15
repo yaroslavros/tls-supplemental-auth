@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-12T01:14:58.290328+00:00",
+  "timestamp": "2026-03-15T01:29:57.285618+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -225,7 +225,71 @@
       "updatedAt": "2026-03-09T06:54:59Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 13,
+      "id": "I_kwDORhrY5M7y8U3w",
+      "title": "max_certificates",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/13",
+      "state": "OPEN",
+      "author": "rifaat-ietf",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "I was wondering about your choice of using max_certificates.\n\nHow would a server, for example, explicitly require the client to provide exactly two certificates:\nA traditional certificate and PQC certificate? or \nA user certificate and a device certificate?\n\n",
+      "createdAt": "2026-03-14T14:11:55Z",
+      "updatedAt": "2026-03-14T14:11:55Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 12,
+      "id": "PR_kwDORhrY5M7Km1cy",
+      "title": "Rifaat's Initial detailed review with suggested changes",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/12",
+      "state": "OPEN",
+      "author": "rifaat-ietf",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Add SupplementalCertificateRequests example.\r\nClarify the distinction between the main handshake and the supplemental authentication stages.",
+      "createdAt": "2026-03-14T14:08:23Z",
+      "updatedAt": "2026-03-14T14:08:45Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "rifaat",
+      "headRefOid": "e7c7ac84592c3a279049a0df5c6933b6f2ef6791",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M7rXzab",
+          "commit": {
+            "abbreviatedOid": "e7c7ac8"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-14T14:08:45Z",
+          "updatedAt": "2026-03-14T14:08:45Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "````suggestion\nSupplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.\n````",
+              "createdAt": "2026-03-14T14:08:45Z",
+              "updatedAt": "2026-03-14T14:08:45Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
