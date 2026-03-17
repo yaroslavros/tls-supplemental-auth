@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-15T01:29:57.285618+00:00",
+  "timestamp": "2026-03-17T01:20:44.389580+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -57,14 +57,31 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/1",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
-      "assignees": [],
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "tireddy2"
+      ],
       "labels": [],
       "body": "The draft describes transcript construction for supplemental authentication, but it does not explicitly define this in terms of the Handshake Context defined in Section 4.4 of TLS 1.3. \n\nThe draft should explicitly define the Handshake Context used for supplemental authentication sequences.\n\na) The Handshake Context will differ between the client and the server, consistent with the Table in Section 4.4.\nb) The Handshake Context should include the CertificateRequest message that carries the supplemental_certificate_requests extension.\n\nPreviously transmitted supplemental authentication messages would become part of the evolving Handshake Context, so that each subsequent CertificateVerify and Finished computation includes them.\n\nApart from the definition of the Handshake Context, the construction of CertificateVerify and Finished should follow the same rules defined in Section 4.4 of TLS 1.3.",
       "createdAt": "2026-03-09T06:21:09Z",
-      "updatedAt": "2026-03-09T07:14:25Z",
+      "updatedAt": "2026-03-16T06:58:11Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Good point. The text should be more explicit",
+          "createdAt": "2026-03-15T05:38:36Z",
+          "updatedAt": "2026-03-15T05:38:36Z"
+        },
+        {
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Good point. The text should be more explicit\n\nYou can assign it to me, I will address it. ",
+          "createdAt": "2026-03-15T07:26:28Z",
+          "updatedAt": "2026-03-15T07:26:28Z"
+        }
+      ]
     },
     {
       "number": 2,
@@ -73,14 +90,31 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
-      "assignees": [],
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "tireddy2"
+      ],
       "labels": [],
       "body": "Since supplemental authentication occurs after the handshake, Base Key should be [sender]_application_traffic_secret_N. ",
       "createdAt": "2026-03-09T06:25:29Z",
-      "updatedAt": "2026-03-09T06:28:17Z",
+      "updatedAt": "2026-03-16T06:58:25Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Excellent point! Thank you",
+          "createdAt": "2026-03-15T05:37:52Z",
+          "updatedAt": "2026-03-15T05:37:52Z"
+        },
+        {
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Excellent point! Thank you\n\nYou can assign it to me, I will fix it. ",
+          "createdAt": "2026-03-15T07:27:01Z",
+          "updatedAt": "2026-03-15T07:27:01Z"
+        }
+      ]
     },
     {
       "number": 3,
@@ -89,14 +123,36 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/3",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "We should clarify whether KeyUpdate, EKU, and post-handshake client authentication messages can interleave with supplemental authentication sequences, and whether any ordering restrictions are required.",
       "createdAt": "2026-03-09T06:33:08Z",
-      "updatedAt": "2026-03-09T06:33:08Z",
+      "updatedAt": "2026-03-16T07:00:09Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "I think this is clarified in section 3:\n\n> Supplemental authentication flights from a given sender MUST form a contiguous sequence of handshake messages. An endpoint MUST NOT interleave application data or other TLS messages with its supplemental authentication flights.",
+          "createdAt": "2026-03-15T05:35:37Z",
+          "updatedAt": "2026-03-15T05:35:37Z"
+        },
+        {
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> I think this is clarified in section 3:\n> \n> > Supplemental authentication flights from a given sender MUST form a contiguous sequence of handshake messages. An endpoint MUST NOT interleave application data or other TLS messages with its supplemental authentication flights.\n\nI was referring to cross-flight interleaving of messages.",
+          "createdAt": "2026-03-15T07:28:34Z",
+          "updatedAt": "2026-03-15T07:28:34Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "How can that happen? Are you referring to DTLS endpoint sending both supplemental certificates immediately followed by EKU, NewSessionTicket or PHA and getting UDP packets reordered? Or something else?",
+          "createdAt": "2026-03-16T07:00:09Z",
+          "updatedAt": "2026-03-16T07:00:09Z"
+        }
+      ]
     },
     {
       "number": 4,
@@ -105,14 +161,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/4",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "RFC 9001 states that servers MUST NOT use post-handshake client authentication and specifically:\n\nservers MUST NOT send post-handshake TLS CertificateRequest messages, and clients MUST treat receipt of such messages as a connection error of type PROTOCOL_VIOLATION.\n\nSince this draft introduces additional Certificate, CertificateVerify, and Finished authentication sequences after the handshake, it is unclear how this mechanism would operate over QUIC without violating the QUIC-TLS restriction.\n\n",
       "createdAt": "2026-03-09T06:38:33Z",
-      "updatedAt": "2026-03-09T06:38:33Z",
+      "updatedAt": "2026-03-15T05:34:50Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "QUIC-TLS prohibits Post Handshake Authentication as specified in RFC8446 because authentication context potentially changes after QUIC handshake and this change might apply to different streams differently. This proposal does not have this problem.",
+          "createdAt": "2026-03-15T05:34:49Z",
+          "updatedAt": "2026-03-15T05:34:49Z"
+        }
+      ]
     },
     {
       "number": 5,
@@ -121,14 +185,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/5",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:41:46Z",
-      "updatedAt": "2026-03-09T07:13:04Z",
+      "updatedAt": "2026-03-15T05:33:20Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Why not?\n\nEmpty `CertificateRequest` is allowed.",
+          "createdAt": "2026-03-15T05:33:20Z",
+          "updatedAt": "2026-03-15T05:33:20Z"
+        }
+      ]
     },
     {
       "number": 6,
@@ -137,14 +209,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/6",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:43:50Z",
-      "updatedAt": "2026-03-09T06:43:50Z",
+      "updatedAt": "2026-03-15T05:32:48Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Can you please clarify the question?\n\nClient and Server can send their supplemental authentication messages at the same time if they wish.",
+          "createdAt": "2026-03-15T05:32:48Z",
+          "updatedAt": "2026-03-15T05:32:48Z"
+        }
+      ]
     },
     {
       "number": 7,
@@ -153,14 +233,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/7",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Whether application data can be sent after each supplemental authentication sequence, or only after all supplemental authentication has completed ?",
       "createdAt": "2026-03-09T06:47:44Z",
-      "updatedAt": "2026-03-09T07:12:39Z",
+      "updatedAt": "2026-03-15T05:32:01Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Only after all supplemental authentication has completed. That's the whole point.\nI think this is clearly specified in multiple places in the document - most detailed in section 3:\n\n> Supplemental authentication flights from a given sender MUST form a contiguous sequence of handshake messages. An endpoint MUST NOT interleave application data or other TLS messages with its supplemental authentication flights.",
+          "createdAt": "2026-03-15T05:32:01Z",
+          "updatedAt": "2026-03-15T05:32:01Z"
+        }
+      ]
     },
     {
       "number": 8,
@@ -169,14 +257,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/8",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:48:34Z",
-      "updatedAt": "2026-03-09T06:48:34Z",
+      "updatedAt": "2026-03-15T05:30:17Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "What do you mean by that? Are there specific DTLS considerations required? Anything other than supplemental certificate flights need to be ACKed?",
+          "createdAt": "2026-03-15T05:30:17Z",
+          "updatedAt": "2026-03-15T05:30:17Z"
+        }
+      ]
     },
     {
       "number": 9,
@@ -185,14 +281,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/9",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "whether multiple supplemental authentication sequences may represent the same identity using different certificate chains or present alternative identities ?\n\nIt looks like the draft is an alternative mechanism for RFC9261. ",
       "createdAt": "2026-03-09T06:50:52Z",
-      "updatedAt": "2026-03-09T07:08:38Z",
+      "updatedAt": "2026-03-15T05:27:51Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "This is intentionally not defined as both cases are within scope.\n\nNot sure how this proposal is an alternative to exported authenticators:\n- exported authenticators are sent on application layer and wrapped into application logic and framing\n- exported authenticators are typically sent based on some application layer event. This proposal is strictly before application layer data is sent",
+          "createdAt": "2026-03-15T05:27:51Z",
+          "updatedAt": "2026-03-15T05:27:51Z"
+        }
+      ]
     },
     {
       "number": 10,
@@ -201,14 +305,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/10",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "It is not clear how a responding endpoint determines which identity or certificate chain to present, especially when the peers are not managed by the same administrative entity.  It looks the proposed draft will only work in deployments where both the peers are managed by the same entity. ",
       "createdAt": "2026-03-09T06:53:16Z",
-      "updatedAt": "2026-03-09T06:53:16Z",
+      "updatedAt": "2026-03-15T05:24:49Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Regular `CertificateRequest` extensions apply. Do you think we need to define or clarify something?",
+          "createdAt": "2026-03-15T05:24:49Z",
+          "updatedAt": "2026-03-15T05:24:49Z"
+        }
+      ]
     },
     {
       "number": 11,
@@ -217,14 +329,22 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/11",
       "state": "OPEN",
       "author": "tireddy2",
-      "authorAssociation": "NONE",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "It does not describe the impact of these post-handshake supplemental authentication messages on the TLS key schedule.",
       "createdAt": "2026-03-09T06:54:59Z",
-      "updatedAt": "2026-03-09T06:54:59Z",
+      "updatedAt": "2026-03-15T05:23:39Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Post handshake supplemental authentication messages do not affect TLS key schedule. Do you think it needs to be spelled out?",
+          "createdAt": "2026-03-15T05:23:39Z",
+          "updatedAt": "2026-03-15T05:23:39Z"
+        }
+      ]
     },
     {
       "number": 13,
@@ -238,9 +358,24 @@
       "labels": [],
       "body": "I was wondering about your choice of using max_certificates.\n\nHow would a server, for example, explicitly require the client to provide exactly two certificates:\nA traditional certificate and PQC certificate? or \nA user certificate and a device certificate?\n\n",
       "createdAt": "2026-03-14T14:11:55Z",
-      "updatedAt": "2026-03-14T14:11:55Z",
+      "updatedAt": "2026-03-15T10:13:30Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "`max_certificates` applies to each `SupplementalCertificateRequest`. In your example, the server will request one client certificate via the `CertificateRequest` itself and exactly one supplemental certificate by including `supplemental_certificate_requests` with `max_certificates`=1 in the only `CertificateRequest`.\n\nBut if there are up to 3 device attestation certificates that server would like to accept from the client (in addition to user cert) it would send `CertificateRequest ` for the user cert with `supplemental_certificate_requests` extension containing one `SupplementalCertificateRequest` with `max_certificates`=3",
+          "createdAt": "2026-03-15T05:22:38Z",
+          "updatedAt": "2026-03-15T05:22:38Z"
+        },
+        {
+          "author": "rifaat-ietf",
+          "authorAssociation": "COLLABORATOR",
+          "body": "max_certificates implies that the party that sent the request is willing to accept no certificates at all. For example, if max_certificates=1 it implies that the party is willing to accept a maximum of 1 certificate, which includes no certificate.\n\nIf this is not the intention, then maybe we need to find a better name for this parameter.\nIf it is intentional, then this implies that the application is required to enforce whatever policy it wants at a later stage.\n\nBoth valid, and have pros and cons.\n\n\n",
+          "createdAt": "2026-03-15T09:40:30Z",
+          "updatedAt": "2026-03-15T10:13:30Z"
+        }
+      ]
     }
   ],
   "pulls": [
