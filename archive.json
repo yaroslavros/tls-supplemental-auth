@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-17T01:20:44.389580+00:00",
+  "timestamp": "2026-03-29T01:44:23.755503+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -376,6 +376,22 @@
           "updatedAt": "2026-03-15T10:13:30Z"
         }
       ]
+    },
+    {
+      "number": 14,
+      "id": "I_kwDORhrY5M73g9ji",
+      "title": "Policy Section",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/14",
+      "state": "OPEN",
+      "author": "rifaat-ietf",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "# Application Policy Enforcement\n\nApplications making use of supplemental authentication must define a clear and unambiguous policy for interpreting the set of authentication statements presented in the TLS handshake and subsequent supplemental authentication flights. This policy dictates the requirements for establishing a connection and for granting access to specific resources.\nWhen evaluating a connection, the application's policy engine must consider all received authentication statements, as well as the absence of expected statements, as inputs to its authorization decision. Incorrect or incomplete policy evaluation can lead to severe security vulnerabilities.\n\nEndpoints should perform their complete policy evaluation after all supplemental authentication flights are complete and before processing any application data. If the full set of presented identities does not satisfy the application's policy, the endpoint must terminate the connection, preferably with a specific alert (e.g., bad_certificate or access_denied).\n\n\n# Policy Enforcement Scenarios\n\nThe following non-normative examples illustrate how application policy interacts with the supplemental authentication mechanism.\n\n## Hybrid Post-Quantum and Traditional Authentication\n\nA high-security client has a local policy requiring that all connections to a specific server be mutually authenticated using both a traditional ECDSA certificate and a post-quantum ML-DSA certificate.\n\n- Client Policy: Connection requires client authentication with both an ECDSA certificate and a ML-DSA certificate.\n\n- Handshake: The server sends a CertificateRequest message.\n\n    Success: The server includes the supplemental_certificate_requests extension. The main request asks for an ECDSA certificate, and a supplemental request asks for a ML-DSA certificate. The client is able to satisfy both and proceeds.\n\n    Failure: The server's CertificateRequest only asks for an ECDSA certificate and does not include a supplemental request for ML-DSA. Upon receiving the CertificateRequest, the client's policy engine determines that its mandatory requirement for dual authentication cannot be met. The client must abort the handshake by sending a handshake_failure alert. It is a policy violation to proceed with a connection that is only partially authenticated according to its own requirements.\n\n## Device and User Identity\n\nA service provider uses supplemental authentication to separate device and user identity for a remote access service. The policy grants different levels of access based on the combination of identities presented.\n\nServer Policy:\n\n- Any connection requires a valid, corporate-managed device certificate.\n- Access to the general user portal requires a valid user certificate in addition to the device certificate.\n- Access to the admin portal requires a valid user certificate with the \"admin\" role, in addition to the device certificate.\n\n\nHandshake: \n\nThe server sends a CertificateRequest asking for the device certificate in the main handshake and includes a supplemental_certificate_requests extension asking for a user certificate.\n\nServer Action:\n\n- If a client provides only a valid device certificate, the connection is established, but the application will deny access to any resource pending the user authentication. \n- If a client provides a valid device certificate and a valid standard user certificate, the application grants access to the general user portal but denies access to the admin portal.\n- If a client provides a valid device certificate and a valid admin user certificate, the application grants access to both portals.\n- If a client provides an invalid device certificate, the server must abort the handshake, regardless of what user certificate is offered. The primary authentication failed to meet the baseline policy.\n\n",
+      "createdAt": "2026-03-27T13:22:32Z",
+      "updatedAt": "2026-03-27T13:22:32Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
