@@ -188,7 +188,7 @@ struct {
 struct {
   uint8 max_certificates;
   opaque certificate_request_context<0..255>;
-  Extension extensions<0..2^16-1>;
+  Extension extensions<2..2^16-1>;
 } SupplementalCertificateRequest;
 ~~~
 {: #fig-supplemental-certificate-requests title="supplemental_certificate_requests Extension Structure"}
