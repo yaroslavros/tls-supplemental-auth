@@ -103,7 +103,6 @@ The following sections illustrate typical message flows.
 In this example, the client requests additional authentication statements from the server using the `supplemental_certificate_requests` extension in the `ClientHello`. The server indicates acceptance in its handshake `Certificate` message. After the client completes the handshake by sending its `Finished` message, the server sends two supplemental authentication flights.
 
 ~~~aasvg
-
 Client                                           Server
 ------                                           ------
 
@@ -158,6 +157,7 @@ Certificate
  + supplemental_certificate
 CertificateVerify
 Finished
+
 Certificate
 CertificateVerify
 Finished
