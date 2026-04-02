@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-29T01:44:23.755503+00:00",
+  "timestamp": "2026-04-02T01:26:44.311239+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -437,6 +437,113 @@
               "body": "````suggestion\nSupplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.\n````",
               "createdAt": "2026-03-14T14:08:45Z",
               "updatedAt": "2026-03-14T14:08:45Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "id": "PR_kwDORhrY5M7PMxaT",
+      "title": "Review comments.",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/15",
+      "state": "OPEN",
+      "author": "hannestschofenig",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-04-01T09:33:34Z",
+      "updatedAt": "2026-04-01T16:47:50Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
+      "headRepository": "hannestschofenig/tls-supplemental-auth",
+      "headRefName": "review",
+      "headRefOid": "a1690052a7a013619622e24f9d2d185f6d2ded3d",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M7xH-QR",
+          "commit": {
+            "abbreviatedOid": "2811852"
+          },
+          "author": "hannestschofenig",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-01T16:21:34Z",
+          "updatedAt": "2026-04-01T16:21:34Z",
+          "comments": [
+            {
+              "originalPosition": 49,
+              "body": "There has to be a Finished from the Client to the Server at some point in time. I am just not entirely sure when it has to come.",
+              "createdAt": "2026-04-01T16:21:34Z",
+              "updatedAt": "2026-04-01T16:21:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M7xIT1S",
+          "commit": {
+            "abbreviatedOid": "2811852"
+          },
+          "author": "hannestschofenig",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-01T16:37:12Z",
+          "updatedAt": "2026-04-01T16:37:12Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "I am not convinced that you can use this approach out of the box with QUIC since QUIC, in my understanding, does not allow post-handshake messages. Strictly speaking we are using post-handshake messages here even though they are sent immediately after the handshake is finished.\n\nFWIW I am also not sure whether this extension can be used in EAP TLS, for example.",
+              "createdAt": "2026-04-01T16:37:12Z",
+              "updatedAt": "2026-04-01T16:37:12Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M7xIl5V",
+          "commit": {
+            "abbreviatedOid": "2811852"
+          },
+          "author": "hannestschofenig",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-01T16:46:21Z",
+          "updatedAt": "2026-04-01T16:46:21Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "```suggestion\n  Extension extensions<2..2^16-1>;\n```",
+              "createdAt": "2026-04-01T16:46:21Z",
+              "updatedAt": "2026-04-01T16:46:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M7xIpGR",
+          "commit": {
+            "abbreviatedOid": "a169005"
+          },
+          "author": "hannestschofenig",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-01T16:47:50Z",
+          "updatedAt": "2026-04-01T16:47:50Z",
+          "comments": [
+            {
+              "originalPosition": 1,
+              "body": "Did you put a minimum of 2 in extensions<2..2^16-1> because you thereby want to prevent someone from negotiating the extension and then not sending anything?",
+              "createdAt": "2026-04-01T16:47:50Z",
+              "updatedAt": "2026-04-01T16:47:50Z"
             }
           ]
         }
