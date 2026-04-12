@@ -28,6 +28,11 @@ author:
     fullname: Yaroslav Rosomakho
     organization: Zscaler
     email: yrosomakho@zscaler.com
+ -
+    fullname: Rifaat Shekh-Yusef
+    organization: Ciena
+    country: Canada
+    email: rifaat.s.ietf@gmail.com
 
 normative:
 
@@ -70,7 +75,11 @@ The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-
 
 # Overview of Supplemental Authentication
 
-Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection. These additional authentication statements are exchanged immediately after the TLS handshake and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.
+Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.
+
+A fundamental concept of this specification is the clear separation between the "Main Handshake" and the "Supplemental Authentication phase". The Main Handshake is considered complete upon the successful processing of the initial Finished messages by both endpoints, at which point a secure connection is established and application traffic keys are available.
+
+These additional authentication statements are exchanged immediately after the TLS main handshake, but before application data is exchanged, and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.
 
 Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the `supplemental_certificate_requests` extension. This extension can appear in the `ClientHello` or `CertificateRequest` messages and contains `SupplementalCertificateRequest` structures that describe the requested authentication contexts and associated parameters.
 
@@ -176,14 +185,14 @@ The extension structure is defined as follows:
 
 ~~~
 struct {
-  SupplementalCertificateRequest requests<0..2^16-1>;
-} SupplementalCertificateRequests;
-
-struct {
   uint8 max_certificates;
   opaque certificate_request_context<0..255>;
   Extension extensions<2..2^16-1>;
 } SupplementalCertificateRequest;
+
+struct {
+  SupplementalCertificateRequest requests<0..2^16-1>;
+} SupplementalCertificateRequests;
 ~~~
 {: #fig-supplemental-certificate-requests title="supplemental_certificate_requests Extension Structure"}
 
@@ -217,6 +226,28 @@ When the `supplemental_certificate_requests` extension appears in the `ClientHel
 A peer receiving the `supplemental_certificate_requests` extension MAY respond to zero or more of the contained `SupplementalCertificateRequest` structures. For a given request, the peer MAY send between zero and `max_certificates` supplemental authentication flights.
 
 If a peer sends a supplemental authentication flight in response to a request, the `certificate_request_context` field of the `Certificate` message MUST be equal to the `certificate_request_context` value of the corresponding `SupplementalCertificateRequest`.
+
+The following is an example of SupplementalCertificateRequests:
+~~~
+SupplementalCertificateRequests {
+  requests = [
+    // Request for the Device Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "device-identity",
+      extensions = { device cert specific extensions ... }
+    },
+
+    // Request for the User Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "user-identity",
+      extensions = { user cert specific extensions ... }
+    }
+  ]
+}
+~~~
+
 
 # The supplemental_certificate TLS flag
 
