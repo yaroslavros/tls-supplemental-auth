@@ -75,7 +75,7 @@ The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-
 
 # Overview of Supplemental Authentication
 
-Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection. 
+Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.
 
 A fundamental concept of this specification is the clear separation between the "Main Handshake" and the "Supplemental Authentication phase". The Main Handshake is considered complete upon the successful processing of the initial Finished messages by both endpoints, at which point a secure connection is established and application traffic keys are available.
 
