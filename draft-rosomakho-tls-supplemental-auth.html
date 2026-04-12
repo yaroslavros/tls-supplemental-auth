@@ -6,6 +6,7 @@
 <meta content="initial-scale=1.0" name="viewport">
 <title>Supplemental Authentication in TLS 1.3</title>
 <meta content="Yaroslav Rosomakho" name="author">
+<meta content="Rifaat Shekh-Yusef" name="author">
 <meta content="
        TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions. 
        This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange. 
@@ -1051,7 +1052,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <td class="right">April 2026</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Rosomakho</td>
+<td class="left">Rosomakho &amp; Shekh-Yusef</td>
 <td class="center">Expires 14 October 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
@@ -1071,11 +1072,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
 <dd class="expires"><time datetime="2026-10-14">14 October 2026</time></dd>
-<dt class="label-authors">Author:</dt>
+<dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
       <div class="author-name">Y. Rosomakho</div>
 <div class="org">Zscaler</div>
+</div>
+<div class="author">
+      <div class="author-name">R. Shekh-Yusef</div>
+<div class="org">Ciena</div>
 </div>
 </dd>
 </dl>
@@ -1244,7 +1249,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1281,13 +1286,15 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-overview-of-supplemental-au">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-overview-of-supplemental-au" class="section-name selfRef">Overview of Supplemental Authentication</a>
       </h2>
-<p id="section-3-1">Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection. These additional authentication statements are exchanged immediately after the TLS handshake and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the <code>supplemental_certificate_requests</code> extension. This extension can appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages and contains <code>SupplementalCertificateRequest</code> structures that describe the requested authentication contexts and associated parameters.<a href="#section-3-2" class="pilcrow">¶</a></p>
-<p id="section-3-3">A peer that is willing to provide supplemental authentication indicates acceptance by including the <code>supplemental_certificate</code> extension in its main handshake <code>Certificate</code> message. The presence of this extension indicates that the sender will transmit at least one additional authentication flight after the handshake completes.<a href="#section-3-3" class="pilcrow">¶</a></p>
-<p id="section-3-4">Each supplemental authentication flight consists of the TLS 1.3 authentication message sequence:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-1">Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">A fundamental concept of this specification is the clear separation between the "Main Handshake" and the "Supplemental Authentication phase". The Main Handshake is considered complete upon the successful processing of the initial Finished messages by both endpoints, at which point a secure connection is established and application traffic keys are available.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">These additional authentication statements are exchanged immediately after the TLS main handshake, but before application data is exchanged, and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the <code>supplemental_certificate_requests</code> extension. This extension can appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages and contains <code>SupplementalCertificateRequest</code> structures that describe the requested authentication contexts and associated parameters.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">A peer that is willing to provide supplemental authentication indicates acceptance by including the <code>supplemental_certificate</code> extension in its main handshake <code>Certificate</code> message. The presence of this extension indicates that the sender will transmit at least one additional authentication flight after the handshake completes.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">Each supplemental authentication flight consists of the TLS 1.3 authentication message sequence:<a href="#section-3-6" class="pilcrow">¶</a></p>
 <span id="name-tls-13-authentication-messa"></span><div id="fig-tls-auth-messages">
 <figure id="figure-1">
-        <div class="alignLeft art-text artwork" id="section-3-5.1">
+        <div class="alignLeft art-text artwork" id="section-3-7.1">
 <pre>
 Certificate
 CertificateVerify
@@ -1298,12 +1305,12 @@ Finished
 <a href="#name-tls-13-authentication-messa" class="selfRef">TLS 1.3 authentication message sequence</a>
         </figcaption></figure>
 </div>
-<p id="section-3-6">These messages are processed using the same cryptographic mechanisms defined for certificate authentication in TLS 1.3. Supplemental authentication flights are sent after the handshake <code>Finished</code> message and are protected using the established connection keys.<a href="#section-3-6" class="pilcrow">¶</a></p>
-<p id="section-3-7">Multiple supplemental authentication flights may be sent by a single endpoint. If the <code>supplemental_certificate</code> extension is present in a supplemental <code>Certificate</code> message, it indicates that another supplemental authentication flight will follow. If the extension is absent, the <code>Certificate</code> message is the final supplemental authentication flight sent by that endpoint.<a href="#section-3-7" class="pilcrow">¶</a></p>
-<p id="section-3-8">Supplemental authentication flights from a given sender <span class="bcp14">MUST</span> form a contiguous sequence of handshake messages. An endpoint <span class="bcp14">MUST NOT</span> interleave application data or other TLS messages with its supplemental authentication flights.<a href="#section-3-8" class="pilcrow">¶</a></p>
-<p id="section-3-9">Each supplemental authentication flight satisfies at most one <code>SupplementalCertificateRequest</code>. A sender <span class="bcp14">MAY</span> transmit multiple supplemental authentication flights that satisfy the same request, provided that the number of flights does not exceed the <code>max_certificates</code> value specified in the corresponding request.<a href="#section-3-9" class="pilcrow">¶</a></p>
-<p id="section-3-10">Supplemental authentication flights for different request contexts <span class="bcp14">MAY</span> appear in any order. The receiver determines which <code>SupplementalCertificateRequest</code>, if any, a supplemental authentication flight satisfies based on the <code>certificate_request_context</code> value.<a href="#section-3-10" class="pilcrow">¶</a></p>
-<p id="section-3-11">The following sections illustrate typical message flows.<a href="#section-3-11" class="pilcrow">¶</a></p>
+<p id="section-3-8">These messages are processed using the same cryptographic mechanisms defined for certificate authentication in TLS 1.3. Supplemental authentication flights are sent after the handshake <code>Finished</code> message and are protected using the established connection keys.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<p id="section-3-9">Multiple supplemental authentication flights may be sent by a single endpoint. If the <code>supplemental_certificate</code> extension is present in a supplemental <code>Certificate</code> message, it indicates that another supplemental authentication flight will follow. If the extension is absent, the <code>Certificate</code> message is the final supplemental authentication flight sent by that endpoint.<a href="#section-3-9" class="pilcrow">¶</a></p>
+<p id="section-3-10">Supplemental authentication flights from a given sender <span class="bcp14">MUST</span> form a contiguous sequence of handshake messages. An endpoint <span class="bcp14">MUST NOT</span> interleave application data or other TLS messages with its supplemental authentication flights.<a href="#section-3-10" class="pilcrow">¶</a></p>
+<p id="section-3-11">Each supplemental authentication flight satisfies at most one <code>SupplementalCertificateRequest</code>. A sender <span class="bcp14">MAY</span> transmit multiple supplemental authentication flights that satisfy the same request, provided that the number of flights does not exceed the <code>max_certificates</code> value specified in the corresponding request.<a href="#section-3-11" class="pilcrow">¶</a></p>
+<p id="section-3-12">Supplemental authentication flights for different request contexts <span class="bcp14">MAY</span> appear in any order. The receiver determines which <code>SupplementalCertificateRequest</code>, if any, a supplemental authentication flight satisfies based on the <code>certificate_request_context</code> value.<a href="#section-3-12" class="pilcrow">¶</a></p>
+<p id="section-3-13">The following sections illustrate typical message flows.<a href="#section-3-13" class="pilcrow">¶</a></p>
 <div id="server-supplemental-authentication-example">
 <section id="section-3.1">
         <h3 id="name-server-supplemental-authent">
@@ -1424,14 +1431,14 @@ Finished
         <div class="alignLeft art-text artwork" id="section-4-5.1">
 <pre>
 struct {
-  SupplementalCertificateRequest requests&lt;0..2^16-1&gt;;
-} SupplementalCertificateRequests;
-
-struct {
   uint8 max_certificates;
   opaque certificate_request_context&lt;0..255&gt;;
   Extension extensions&lt;2..2^16-1&gt;;
 } SupplementalCertificateRequest;
+
+struct {
+  SupplementalCertificateRequest requests&lt;0..2^16-1&gt;;
+} SupplementalCertificateRequests;
 </pre>
 </div>
 <figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
@@ -1470,6 +1477,26 @@ struct {
 <code>ClientHello</code>. When the extension appears in a <code>CertificateRequest</code>, the inherited values are taken from the parameters of the enclosing <code>CertificateRequest</code> message.<a href="#section-4-14" class="pilcrow">¶</a></p>
 <p id="section-4-15">A peer receiving the <code>supplemental_certificate_requests</code> extension <span class="bcp14">MAY</span> respond to zero or more of the contained <code>SupplementalCertificateRequest</code> structures. For a given request, the peer <span class="bcp14">MAY</span> send between zero and <code>max_certificates</code> supplemental authentication flights.<a href="#section-4-15" class="pilcrow">¶</a></p>
 <p id="section-4-16">If a peer sends a supplemental authentication flight in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding <code>SupplementalCertificateRequest</code>.<a href="#section-4-16" class="pilcrow">¶</a></p>
+<p id="section-4-17">The following is an example of SupplementalCertificateRequests:
+~~~
+SupplementalCertificateRequests {
+  requests = [
+    // Request for the Device Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "device-identity",
+      extensions = { device cert specific extensions ... }
+    },<a href="#section-4-17" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-18">
+<pre>
+// Request for the User Certificate
+SupplementalCertificateRequest {
+  max_certificates = 1,
+  certificate_request_context = "user-identity",
+  extensions = { user cert specific extensions ... }
+}   ] } ~~~
+</pre><a href="#section-4-18" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="the-supplementalcertificate-tls-flag">
@@ -1756,8 +1783,8 @@ Finished
 </div>
 <div id="authors-addresses">
 <section id="appendix-B">
-      <h2 id="name-authors-address">
-<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Yaroslav Rosomakho</span></div>
@@ -1765,6 +1792,15 @@ Finished
 <div class="email">
 <span>Email:</span>
 <a href="mailto:yrosomakho@zscaler.com" class="email">yrosomakho@zscaler.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Rifaat Shekh-Yusef</span></div>
+<div dir="auto" class="left"><span class="org">Ciena</span></div>
+<div dir="auto" class="left"><span class="country-name">Canada</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:rifaat.s.ietf@gmail.com" class="email">rifaat.s.ietf@gmail.com</a>
 </div>
 </address>
 </section>
