@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-09T01:23:39.197902+00:00",
+  "timestamp": "2026-04-14T01:50:05.965110+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -436,24 +436,26 @@
       "id": "PR_kwDORhrY5M7Km1cy",
       "title": "Rifaat's Initial detailed review with suggested changes",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/12",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "rifaat-ietf",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Add SupplementalCertificateRequests example.\r\nClarify the distinction between the main handshake and the supplemental authentication stages.",
       "createdAt": "2026-03-14T14:08:23Z",
-      "updatedAt": "2026-03-14T14:08:45Z",
+      "updatedAt": "2026-04-12T22:23:57Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
       "headRepository": "yaroslavros/tls-supplemental-auth",
       "headRefName": "rifaat",
-      "headRefOid": "e7c7ac84592c3a279049a0df5c6933b6f2ef6791",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "f2f9ede7cc59dfebd130874cc17e654ca4e730a1",
+      "closedAt": "2026-04-12T22:23:57Z",
+      "mergedAt": "2026-04-12T22:23:57Z",
+      "mergedBy": "yaroslavros",
+      "mergeCommit": {
+        "oid": "692bd87b1ec15c1e853ae96fab37dd3bf6c09bae"
+      },
       "comments": [],
       "reviews": [
         {
@@ -462,7 +464,7 @@
             "abbreviatedOid": "e7c7ac8"
           },
           "author": "github-actions",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2026-03-14T14:08:45Z",
@@ -475,6 +477,19 @@
               "updatedAt": "2026-03-14T14:08:45Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70IKpA",
+          "commit": {
+            "abbreviatedOid": "f2f9ede"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-04-12T22:21:42Z",
+          "updatedAt": "2026-04-12T22:21:42Z",
+          "comments": []
         }
       ]
     },
@@ -490,7 +505,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-04-01T09:33:34Z",
-      "updatedAt": "2026-04-01T16:47:50Z",
+      "updatedAt": "2026-04-12T22:34:58Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
@@ -501,7 +516,15 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Text changes except for QUIC look good!\r\n\r\n@hannestschofenig please look at my comments above and also add yourself as a co-author.",
+          "createdAt": "2026-04-12T22:34:57Z",
+          "updatedAt": "2026-04-12T22:34:57Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDORhrY5M7xH-QR",
@@ -582,6 +605,86 @@
               "updatedAt": "2026-04-01T16:47:50Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70ILXr",
+          "commit": {
+            "abbreviatedOid": "a169005"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:25:33Z",
+          "updatedAt": "2026-04-12T22:25:34Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "QUIC does allow post-handshake messages. Endpoints can keep using CRYPTO stream after handshake is complete. In fact, this is the mechanism to deliver session tickets for resumption.\nIf post-handshake messages would not be allowed, we would not be able to do EKU in QUIC...",
+              "createdAt": "2026-04-12T22:25:33Z",
+              "updatedAt": "2026-04-12T22:25:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70IMbu",
+          "commit": {
+            "abbreviatedOid": "a169005"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:28:30Z",
+          "updatedAt": "2026-04-12T22:28:31Z",
+          "comments": [
+            {
+              "originalPosition": 49,
+              "body": "It actually can come at any time after server's finished. That's why I have omitted it from the original diagram.\nIncluding it as you proposing implies that server has to wait for client's Finished before sending supplemental certificates - which is not correct...",
+              "createdAt": "2026-04-12T22:28:31Z",
+              "updatedAt": "2026-04-12T22:28:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70IMxW",
+          "commit": {
+            "abbreviatedOid": "a169005"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:29:58Z",
+          "updatedAt": "2026-04-12T22:29:58Z",
+          "comments": [
+            {
+              "originalPosition": 69,
+              "body": "Why are you removing supplemental_certificate flag form the initial Certificate message? It must be present to indicate that additional Certificate flights will come after the Finishes message.",
+              "createdAt": "2026-04-12T22:29:58Z",
+              "updatedAt": "2026-04-12T22:29:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70INzM",
+          "commit": {
+            "abbreviatedOid": "a169005"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:32:54Z",
+          "updatedAt": "2026-04-12T22:32:54Z",
+          "comments": [
+            {
+              "originalPosition": 1,
+              "body": "I was thinking about requiring signature_algorithms extension similarly to TLS 1.3 CertificateRequest and did not write that down...\nWhat do you think?",
+              "createdAt": "2026-04-12T22:32:54Z",
+              "updatedAt": "2026-04-12T22:32:54Z"
+            }
+          ]
         }
       ]
     },
@@ -597,7 +700,7 @@
       "labels": [],
       "body": "Address issues https://github.com/yaroslavros/tls-supplemental-auth/issues/1 and https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
       "createdAt": "2026-04-04T06:45:49Z",
-      "updatedAt": "2026-04-04T06:49:23Z",
+      "updatedAt": "2026-04-12T22:37:35Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
@@ -609,7 +712,68 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M70IO4S",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:36:19Z",
+          "updatedAt": "2026-04-12T22:36:19Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "Hannes provided a good text for this section in https://github.com/yaroslavros/tls-supplemental-auth/pull/15\n@tireddy2 could you please review it?",
+              "createdAt": "2026-04-12T22:36:19Z",
+              "updatedAt": "2026-04-12T22:36:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70IPHp",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:37:19Z",
+          "updatedAt": "2026-04-12T22:37:20Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Actually server supplemental does not include Client Finished. Otherwise server will have to wait for it before sending its supplemental certificates.",
+              "createdAt": "2026-04-12T22:37:20Z",
+              "updatedAt": "2026-04-12T22:37:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M70IPLt",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-12T22:37:35Z",
+          "updatedAt": "2026-04-12T22:37:35Z",
+          "comments": [
+            {
+              "originalPosition": 44,
+              "body": "```suggestion\n| Client       | ClientHello ... Client      | client_application_traffic_    |\n```",
+              "createdAt": "2026-04-12T22:37:35Z",
+              "updatedAt": "2026-04-12T22:37:35Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
