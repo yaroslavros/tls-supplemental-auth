@@ -280,7 +280,7 @@ the Handshake Context and Base Key updated in the following table:
 |              | supplemental authentication |                                |
 |              | sequences                   |                                |
 |              |                             |                                |
-| Client       | ClientHello ... client      | client_application_traffic_    |
+| Client       | ClientHello ... Client      | client_application_traffic_    |
 | Supplemental | Finished +                  | secret_N                       |
 |              | all messages from           |                                |
 |              | previously sent client      |                                |
