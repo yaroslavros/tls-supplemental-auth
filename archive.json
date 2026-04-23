@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-14T01:50:05.965110+00:00",
+  "timestamp": "2026-04-23T01:54:04.253762+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -700,13 +700,13 @@
       "labels": [],
       "body": "Address issues https://github.com/yaroslavros/tls-supplemental-auth/issues/1 and https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
       "createdAt": "2026-04-04T06:45:49Z",
-      "updatedAt": "2026-04-12T22:37:35Z",
+      "updatedAt": "2026-04-22T14:46:05Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
       "headRepository": "yaroslavros/tls-supplemental-auth",
       "headRefName": "tireddy2-patch-1",
-      "headRefOid": "6b677a5f0f24bf25b03be43b7388b61ef1cc1e70",
+      "headRefOid": "12d851b0d31751c69b96cec6f30de93c84e62acd",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -770,6 +770,126 @@
               "body": "```suggestion\n| Client       | ClientHello ... Client      | client_application_traffic_    |\n```",
               "createdAt": "2026-04-12T22:37:35Z",
               "updatedAt": "2026-04-12T22:37:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M73Qlhm",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-21T14:08:47Z",
+          "updatedAt": "2026-04-21T14:08:47Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "My understanding is the supplemental authentication to begin only after the complete TLS handshake, including verification of the client's Finished, so the server's Handshake Context correctly includes the client Finished",
+              "createdAt": "2026-04-21T14:08:47Z",
+              "updatedAt": "2026-04-21T14:08:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M73QqYd",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-21T14:11:31Z",
+          "updatedAt": "2026-04-21T14:11:31Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "The approach in the PR better aligned with https://datatracker.ietf.org/doc/html/rfc8446#section-4.4. ",
+              "createdAt": "2026-04-21T14:11:31Z",
+              "updatedAt": "2026-04-21T14:11:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M73l-xT",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-22T10:31:30Z",
+          "updatedAt": "2026-04-22T10:31:30Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "That would introduce additional latency unnecessarily. Server can send supplemental certificates without waiting for Client's Finished.",
+              "createdAt": "2026-04-22T10:31:30Z",
+              "updatedAt": "2026-04-22T10:31:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M73mE-g",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-22T10:36:27Z",
+          "updatedAt": "2026-04-22T10:36:27Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Worth noting that TLS 1.3 spec similarly allows NewSessionTicket to be sent in immediately after server's Finished without waiting for client's Finished.",
+              "createdAt": "2026-04-22T10:36:27Z",
+              "updatedAt": "2026-04-22T10:36:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M73rlRu",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-22T14:19:53Z",
+          "updatedAt": "2026-04-22T14:19:53Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "> That would introduce additional latency unnecessarily. Server can send supplemental certificates without waiting for Client's Finished.\r\n\r\nThe draft currently contradicts the above point in the Record Protection section, it says:\r\n\r\n\"Supplemental authentication messages are sent after the TLS handshake has completed and are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.\"\r\n\r\nThe other problem is application traffic keys are only available after the complete TLS handshake, which includes receiving and verifying the client Finished message. ",
+              "createdAt": "2026-04-22T14:19:53Z",
+              "updatedAt": "2026-04-22T14:21:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M73sWkK",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-22T14:46:05Z",
+          "updatedAt": "2026-04-22T14:46:05Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "I don't think that's correct. Please check Section 7.1 of RFC8446: Client Application Traffic Secret, Server Application Traffic Secret (and Exporter Secret) only take ClientHello...**server** Finished and do not include client's Finished message",
+              "createdAt": "2026-04-22T14:46:05Z",
+              "updatedAt": "2026-04-22T14:46:34Z"
             }
           ]
         }
