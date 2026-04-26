@@ -35,7 +35,7 @@ author:
     region: Karnataka
     country: India
     email: "k.tirumaleswar_reddy@nokia.com"
- -   
+ -
     fullname: Rifaat Shekh-Yusef
     organization: Ciena
     country: Canada
