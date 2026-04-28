@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-23T01:54:04.253762+00:00",
+  "timestamp": "2026-04-28T02:06:43.821702+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -700,13 +700,13 @@
       "labels": [],
       "body": "Address issues https://github.com/yaroslavros/tls-supplemental-auth/issues/1 and https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
       "createdAt": "2026-04-04T06:45:49Z",
-      "updatedAt": "2026-04-22T14:46:05Z",
+      "updatedAt": "2026-04-26T06:27:29Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
-      "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
+      "baseRefOid": "692bd87b1ec15c1e853ae96fab37dd3bf6c09bae",
       "headRepository": "yaroslavros/tls-supplemental-auth",
       "headRefName": "tireddy2-patch-1",
-      "headRefOid": "12d851b0d31751c69b96cec6f30de93c84e62acd",
+      "headRefOid": "4a580527041b2132e0a8c7b373119bbbf9916d1f",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -890,6 +890,46 @@
               "body": "I don't think that's correct. Please check Section 7.1 of RFC8446: Client Application Traffic Secret, Server Application Traffic Secret (and Exporter Secret) only take ClientHello...**server** Finished and do not include client's Finished message",
               "createdAt": "2026-04-22T14:46:05Z",
               "updatedAt": "2026-04-22T14:46:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M748fbA",
+          "commit": {
+            "abbreviatedOid": "e4f250a"
+          },
+          "author": "github-actions",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-26T06:25:35Z",
+          "updatedAt": "2026-04-26T06:25:36Z",
+          "comments": [
+            {
+              "originalPosition": 10,
+              "body": "````suggestion\n -\n````",
+              "createdAt": "2026-04-26T06:25:35Z",
+              "updatedAt": "2026-04-26T06:25:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M748fr7",
+          "commit": {
+            "abbreviatedOid": "6b677a5"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-04-26T06:27:18Z",
+          "updatedAt": "2026-04-26T06:27:18Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Got it, Thanks. Updated Record Protection, Transcript Construction and added a new section Session Resumption.",
+              "createdAt": "2026-04-26T06:27:18Z",
+              "updatedAt": "2026-04-26T06:27:19Z"
             }
           ]
         }
