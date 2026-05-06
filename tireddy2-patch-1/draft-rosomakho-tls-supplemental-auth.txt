@@ -5,10 +5,10 @@
 Transport Layer Security                                    Y. Rosomakho
 Internet-Draft                                                   Zscaler
 Intended status: Standards Track                                T. Reddy
-Expires: 28 October 2026                                           Nokia
+Expires: 7 November 2026                                           Nokia
                                                           R. Shekh-Yusef
                                                                    Ciena
-                                                           26 April 2026
+                                                              6 May 2026
 
 
                  Supplemental Authentication in TLS 1.3
@@ -66,7 +66,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 October 2026.
+   This Internet-Draft will expire on 7 November 2026.
 
 Copyright Notice
 
@@ -459,11 +459,13 @@ Finished
 
 6.1.  Record Protection
 
-   Supplemental authentication messages are sent after the server's
-   Finished message and are protected using the established application
-   traffic secrets.  The sender encrypts these messages using the
-   application traffic keys in the same manner as application data
-   records.
+   Server supplemental authentication messages are sent after the
+   server's Finished message and client supplemental authentication
+   messages are sent after the client's Finished message.  Supplemental
+   authentication messages are protected using the established
+   application traffic secrets.  The sender encrypts these messages
+   using the application traffic keys in the same manner as application
+   data records.
 
 6.2.  Transcript Construction
 
