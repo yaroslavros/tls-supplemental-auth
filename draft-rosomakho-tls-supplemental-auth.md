@@ -296,7 +296,7 @@ Server supplemental authentication messages are sent after the server's `Finishe
 
 ## Transcript Construction
 
-Supplemental authentication sequences extend the TLS handshake transcript. The `CertificateVerify` and `Finished` messages in each supplemental authentication sequence are computed using the same procedures defined in Section 4.4 of {{TLS}}, with the Handshake Context and Base Key as specified in the following table:
+The `CertificateVerify` and `Finished` messages in each supplemental authentication sequence are computed using the same procedures defined in Section 4.4 of {{TLS}}, with the Handshake Context and Base Key as specified in the following table:
 
 ~~~
 +--------------+-----------------------------+--------------------------------+
