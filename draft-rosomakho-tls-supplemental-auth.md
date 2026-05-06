@@ -292,7 +292,7 @@ These messages use the same structure and processing rules as the corresponding 
 
 ## Record Protection
 
-Supplemental authentication messages are sent after the server's `Finished` message and are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.
+Server supplemental authentication messages are sent after the server's `Finished` message and client supplemental authentication messages are sent after the client's `Finished` message. Supplemental authentication messages are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.
 
 ## Transcript Construction
 
