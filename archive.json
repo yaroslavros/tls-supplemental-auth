@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-28T02:06:43.821702+00:00",
+  "timestamp": "2026-05-07T02:05:23.532864+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -700,13 +700,13 @@
       "labels": [],
       "body": "Address issues https://github.com/yaroslavros/tls-supplemental-auth/issues/1 and https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
       "createdAt": "2026-04-04T06:45:49Z",
-      "updatedAt": "2026-04-26T06:27:29Z",
+      "updatedAt": "2026-05-06T05:34:34Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "692bd87b1ec15c1e853ae96fab37dd3bf6c09bae",
       "headRepository": "yaroslavros/tls-supplemental-auth",
       "headRefName": "tireddy2-patch-1",
-      "headRefOid": "4a580527041b2132e0a8c7b373119bbbf9916d1f",
+      "headRefOid": "3b04264c53d508d96515dabe32d0304a53c6872d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -932,8 +932,100 @@
               "updatedAt": "2026-04-26T06:27:19Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M78Bt3e",
+          "commit": {
+            "abbreviatedOid": "4a58052"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-05-05T13:15:23Z",
+          "updatedAt": "2026-05-05T13:15:24Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "```suggestion\nServer supplemental authentication messages are sent after the server's `Finished` message and client supplemental authentication messages are sent after the client's `Finished` message. Supplemental authentication messages are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.\n```",
+              "createdAt": "2026-05-05T13:15:24Z",
+              "updatedAt": "2026-05-05T13:15:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M78B03V",
+          "commit": {
+            "abbreviatedOid": "4a58052"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-05-05T13:18:45Z",
+          "updatedAt": "2026-05-05T13:18:46Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "> Supplemental authentication sequences extend the TLS handshake transcript.\n\nI don't think this is correct. We build a new transcript based on the existing one but do not \"extend\" the existing one.",
+              "createdAt": "2026-05-05T13:18:46Z",
+              "updatedAt": "2026-05-05T13:18:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M78VVcC",
+          "commit": {
+            "abbreviatedOid": "4952291"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-05-06T05:32:43Z",
+          "updatedAt": "2026-05-06T05:33:16Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Agreed, I will remove the first line. ",
+              "createdAt": "2026-05-06T05:32:43Z",
+              "updatedAt": "2026-05-06T05:33:16Z"
+            },
+            {
+              "originalPosition": 38,
+              "body": "```suggestion\nThe `CertificateVerify` and `Finished` messages in each supplemental authentication sequence are computed using the same procedures defined in Section 4.4 of {{TLS}}, with the Handshake Context and Base Key as specified in the following table:\n```",
+              "createdAt": "2026-05-06T05:33:02Z",
+              "updatedAt": "2026-05-06T05:33:16Z"
+            }
+          ]
         }
       ]
+    },
+    {
+      "number": 17,
+      "id": "PR_kwDORhrY5M7YuHC0",
+      "title": "Author Update",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/17",
+      "state": "OPEN",
+      "author": "hannestschofenig",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-05-06T10:10:12Z",
+      "updatedAt": "2026-05-06T10:10:13Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "692bd87b1ec15c1e853ae96fab37dd3bf6c09bae",
+      "headRepository": "hannestschofenig/tls-supplemental-auth",
+      "headRefName": "patch-1",
+      "headRefOid": "e63075c788e5e8515a85955152c9a7efea1ae345",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
