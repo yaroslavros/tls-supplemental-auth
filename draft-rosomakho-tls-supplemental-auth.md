@@ -29,6 +29,13 @@ author:
     organization: Zscaler
     email: yrosomakho@zscaler.com
  -
+    fullname: Tirumaleswar Reddy
+    organization: Nokia
+    city: Bangalore
+    region: Karnataka
+    country: India
+    email: "k.tirumaleswar_reddy@nokia.com"
+ -
     fullname: Rifaat Shekh-Yusef
     organization: Ciena
     country: Canada
@@ -73,7 +80,7 @@ The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-
 
 {::boilerplate bcp14-tagged}
 
-# Overview of Supplemental Authentication
+# Overview of Supplemental Authentication
 
 Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.
 
@@ -285,30 +292,46 @@ These messages use the same structure and processing rules as the corresponding 
 
 ## Record Protection
 
-Supplemental authentication messages are sent after the TLS handshake has completed and are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.
+Server supplemental authentication messages are sent after the server's `Finished` message and client supplemental authentication messages are sent after the client's `Finished` message. Supplemental authentication messages are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.
 
-## Transcript Construction
+## Transcript Construction
 
-Supplemental authentication sequences extend the TLS handshake transcript.
+The `CertificateVerify` and `Finished` messages in each supplemental authentication sequence are computed using the same procedures defined in Section 4.4 of {{TLS}}, with the Handshake Context and Base Key as specified in the following table:
 
-For the purpose of computing supplemental authentication messages, each endpoint continues the handshake transcript starting from the point at which that endpoint completed the TLS handshake.
+~~~
++--------------+-----------------------------+--------------------------------+
+| Mode         | Handshake Context           | Base Key                       |
++--------------+-----------------------------+--------------------------------+
+| Server       | ClientHello ... server      | server_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent server      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
+|              |                             |                                |
+| Client       | ClientHello ... client      | client_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent client      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
++--------------+-----------------------------+--------------------------------+
+~~~
 
-For a server sending supplemental authentication sequences, the transcript used to compute the `CertificateVerify` signature begins with the handshake transcript that includes all handshake messages up to and including the server's `Finished` message.
+The `CertificateVerify` and `Finished` messages are computed as defined in Section 4.4 of {{TLS}}:
 
-For a client sending supplemental authentication sequences, the transcript used to compute the `CertificateVerify` signature begins with the handshake transcript that includes all handshake messages up to and including the client's `Finished` message. It does not include any supplemental authenticaiton messages that the client may have recieved from the server.
+~~~
+CertificateVerify: A signature over the value
+   Transcript-Hash(Handshake Context, Certificate).
 
-Supplemental authentication sequences sent by one endpoint are not included in the transcript used by the peer when constructing its own supplemental authentication messages. Each endpoint therefore signs only its own supplemental authentication sequences together with the TLS handshake transcript.
+Finished: A MAC over the value Transcript-Hash(Handshake Context,
+   Certificate, CertificateVerify) using a MAC key derived from the
+   Base Key.
+~~~
 
-For each supplemental authentication sequence, the transcript used to compute the `CertificateVerify` signature additionally includes:
+After a supplemental authentication sequence is sent, its `Certificate`, `CertificateVerify`, and `Finished` messages are appended to the sender's Handshake Context, so that each subsequent sequence is bound to all previously transmitted sequences from that sender. Endpoints performing supplemental authentication MUST retain the transcript hash state at the end of the handshake and update it with each supplemental authentication message sent, until all supplemental authentication sequences have been transmitted.
 
-* all messages from any preceding supplemental authentication sequences sent by this endpoint, and
-* the `Certificate` message of the current supplemental authentication sequence.
-
-The `CertificateVerify` message is constructed using the same procedure and context string defined for certificate authentication in TLS 1.3 {{TLS}}.
-
-The `Finished` message is computed using the same procedure defined in TLS 1.3, with the transcript hash including the `Certificate` and `CertificateVerify` messages of the current supplemental authentication sequence and all prior handshake and supplemental authentication messages included in the sender's transcript.
-
-Endpoints performing supplemental authentication MUST retain the necessary handshake authentication state required to compute additional `CertificateVerify` and `Finished` messages until supplemental authentication has completed.
+Unlike post-handshake client authentication, supplemental authentication messages received from the peer are not included in the sender's Handshake Context. This is because both endpoints may send supplemental authentication sequences concurrently, and including peer messages would require defining a deterministic interleaving order between the two endpoints' sequences, which this document does not define.
 
 ## Request Matching
 
@@ -320,7 +343,7 @@ A sender MAY transmit multiple supplemental authentication sequences that satisf
 
 A sender MAY also transmit supplemental authentication sequences that are not associated with any specific request context, in which case the `certificate_request_context` field of the `Certificate` message is empty.
 
-## Message Ordering
+## Message Ordering
 
 Supplemental authentication sequences sent by an endpoint MUST form a contiguous sequence of TLS handshake messages.
 
@@ -366,6 +389,10 @@ Clients that wish to avoid revealing requested supplemental authentication conte
 
 A client MAY include an empty `supplemental_certificate_requests` extension in the outer ClientHello to indicate support for supplemental authentication while withholding the specific request parameters until the encrypted inner ClientHello is processed.
 
+## Session Resumption
+
+The `resumption_master_secret` is derived from `ClientHello...client Finished` per Section 7.1 of {{TLS}} and does not include supplemental authentication messages. A server MUST NOT send a `NewSessionTicket` message until all supplemental authentication sequences from both endpoints have been completed. This ensures that a resumed session is not established before the supplemental authentication guarantees of the original session have been fully established.
+
 # IANA Considerations
 
 ## TLS Extension
@@ -393,5 +420,3 @@ ANA is requested to add the following entry to the "TLS Flags" extension registr
 
 # Acknowledgments
 {:numbered="false"}
-
-TODO acknowledge.
