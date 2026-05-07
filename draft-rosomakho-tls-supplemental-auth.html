@@ -6,29 +6,30 @@
 <meta content="initial-scale=1.0" name="viewport">
 <title>Supplemental Authentication in TLS 1.3</title>
 <meta content="Yaroslav Rosomakho" name="author">
+<meta content="Tirumaleswar Reddy" name="author">
 <meta content="Rifaat Shekh-Yusef" name="author">
 <meta content="
        TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions. 
        This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange. 
     " name="description">
-<meta content="xml2rfc 3.32.0" name="generator">
+<meta content="xml2rfc 3.33.0" name="generator">
 <meta content="tls" name="keyword">
 <meta content="supplemental authentication" name="keyword">
 <meta content="secondary certificates" name="keyword">
 <meta content="draft-rosomakho-tls-supplemental-auth-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.32.0
-    Python 3.12.12
+  xml2rfc 3.33.0
+    Python 3.12.13
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.0.2
-    platformdirs 4.9.4
+    platformdirs 4.9.6
     pycountry 24.6.1
     PyYAML 6.0.3
-    requests 2.32.5
-    wcwidth 0.6.0
+    requests 2.33.1
+    wcwidth 0.7.0
 -->
 <link href="draft-rosomakho-tls-supplemental-auth.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1049,11 +1050,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Supplemental Authentication in TLS 1.3</td>
-<td class="right">April 2026</td>
+<td class="right">May 2026</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Rosomakho &amp; Shekh-Yusef</td>
-<td class="center">Expires 14 October 2026</td>
+<td class="left">Rosomakho, et al.</td>
+<td class="center">Expires 8 November 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,17 +1067,21 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-rosomakho-tls-supplemental-auth-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-04-12" class="published">12 April 2026</time>
+<time datetime="2026-05-07" class="published">7 May 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-10-14">14 October 2026</time></dd>
+<dd class="expires"><time datetime="2026-11-08">8 November 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
       <div class="author-name">Y. Rosomakho</div>
 <div class="org">Zscaler</div>
+</div>
+<div class="author">
+      <div class="author-name">T. Reddy</div>
+<div class="org">Nokia</div>
 </div>
 <div class="author">
       <div class="author-name">R. Shekh-Yusef</div>
@@ -1126,7 +1131,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 14 October 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 8 November 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1220,6 +1225,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
                 <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-confidentiality-of-authenti" class="internal xref">Confidentiality of Authentication Requests</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6">
+                <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="auto internal xref">7.6</a>.  <a href="#name-session-resumption" class="internal xref">Session Resumption</a></p>
 </li>
             </ul>
 </li>
@@ -1547,7 +1555,7 @@ Finished
         <h3 id="name-record-protection">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-record-protection" class="section-name selfRef">Record Protection</a>
         </h3>
-<p id="section-6.1-1">Supplemental authentication messages are sent after the TLS handshake has completed and are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-1">Server supplemental authentication messages are sent after the server's <code>Finished</code> message and client supplemental authentication messages are sent after the client's <code>Finished</code> message. Supplemental authentication messages are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="transcript-construction">
@@ -1555,23 +1563,41 @@ Finished
         <h3 id="name-transcript-construction">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-transcript-construction" class="section-name selfRef">Transcript Construction</a>
         </h3>
-<p id="section-6.2-1">Supplemental authentication sequences extend the TLS handshake transcript.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">For the purpose of computing supplemental authentication messages, each endpoint continues the handshake transcript starting from the point at which that endpoint completed the TLS handshake.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
-<p id="section-6.2-3">For a server sending supplemental authentication sequences, the transcript used to compute the <code>CertificateVerify</code> signature begins with the handshake transcript that includes all handshake messages up to and including the server's <code>Finished</code> message.<a href="#section-6.2-3" class="pilcrow">¶</a></p>
-<p id="section-6.2-4">For a client sending supplemental authentication sequences, the transcript used to compute the <code>CertificateVerify</code> signature begins with the handshake transcript that includes all handshake messages up to and including the client's <code>Finished</code> message. It does not include any supplemental authenticaiton messages that the client may have recieved from the server.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
-<p id="section-6.2-5">Supplemental authentication sequences sent by one endpoint are not included in the transcript used by the peer when constructing its own supplemental authentication messages. Each endpoint therefore signs only its own supplemental authentication sequences together with the TLS handshake transcript.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
-<p id="section-6.2-6">For each supplemental authentication sequence, the transcript used to compute the <code>CertificateVerify</code> signature additionally includes:<a href="#section-6.2-6" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-6.2-7.1">
-            <p id="section-6.2-7.1.1">all messages from any preceding supplemental authentication sequences sent by this endpoint, and<a href="#section-6.2-7.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-6.2-7.2">
-            <p id="section-6.2-7.2.1">the <code>Certificate</code> message of the current supplemental authentication sequence.<a href="#section-6.2-7.2.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-6.2-8">The <code>CertificateVerify</code> message is constructed using the same procedure and context string defined for certificate authentication in TLS 1.3 <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>.<a href="#section-6.2-8" class="pilcrow">¶</a></p>
-<p id="section-6.2-9">The <code>Finished</code> message is computed using the same procedure defined in TLS 1.3, with the transcript hash including the <code>Certificate</code> and <code>CertificateVerify</code> messages of the current supplemental authentication sequence and all prior handshake and supplemental authentication messages included in the sender's transcript.<a href="#section-6.2-9" class="pilcrow">¶</a></p>
-<p id="section-6.2-10">Endpoints performing supplemental authentication <span class="bcp14">MUST</span> retain the necessary handshake authentication state required to compute additional <code>CertificateVerify</code> and <code>Finished</code> messages until supplemental authentication has completed.<a href="#section-6.2-10" class="pilcrow">¶</a></p>
+<p id="section-6.2-1">The <code>CertificateVerify</code> and <code>Finished</code> messages in each supplemental authentication sequence are computed using the same procedures defined in Section 4.4 of <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>, with the Handshake Context and Base Key as specified in the following table:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.2-2">
+<pre>
++--------------+-----------------------------+--------------------------------+
+| Mode         | Handshake Context           | Base Key                       |
++--------------+-----------------------------+--------------------------------+
+| Server       | ClientHello ... server      | server_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent server      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
+|              |                             |                                |
+| Client       | ClientHello ... client      | client_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent client      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
++--------------+-----------------------------+--------------------------------+
+</pre><a href="#section-6.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-6.2-3">The <code>CertificateVerify</code> and <code>Finished</code> messages are computed as defined in Section 4.4 of <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>:<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.2-4">
+<pre>
+CertificateVerify: A signature over the value
+   Transcript-Hash(Handshake Context, Certificate).
+
+Finished: A MAC over the value Transcript-Hash(Handshake Context,
+   Certificate, CertificateVerify) using a MAC key derived from the
+   Base Key.
+</pre><a href="#section-6.2-4" class="pilcrow">¶</a>
+</div>
+<p id="section-6.2-5">After a supplemental authentication sequence is sent, its <code>Certificate</code>, <code>CertificateVerify</code>, and <code>Finished</code> messages are appended to the sender's Handshake Context, so that each subsequent sequence is bound to all previously transmitted sequences from that sender. Endpoints performing supplemental authentication <span class="bcp14">MUST</span> retain the transcript hash state at the end of the handshake and update it with each supplemental authentication message sent, until all supplemental authentication sequences have been transmitted.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+<p id="section-6.2-6">Unlike post-handshake client authentication, supplemental authentication messages received from the peer are not included in the sender's Handshake Context. This is because both endpoints may send supplemental authentication sequences concurrently, and including peer messages would require defining a deterministic interleaving order between the two endpoints' sequences, which this document does not define.<a href="#section-6.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="request-matching">
@@ -1648,6 +1674,14 @@ Finished
 <p id="section-7.5-1">The <code>supplemental_certificate_requests</code> extension may reveal information about the types of authentication statements requested by an endpoint. When this extension appears in the <code>ClientHello</code>, its contents are visible to on-path observers unless the connection uses Encrypted ClientHello <span>[<a href="#ECH" class="cite xref">ECH</a>]</span>.<a href="#section-7.5-1" class="pilcrow">¶</a></p>
 <p id="section-7.5-2">Clients that wish to avoid revealing requested supplemental authentication contexts <span class="bcp14">SHOULD</span> use ECH so that the contents of the inner ClientHello are encrypted.<a href="#section-7.5-2" class="pilcrow">¶</a></p>
 <p id="section-7.5-3">A client <span class="bcp14">MAY</span> include an empty <code>supplemental_certificate_requests</code> extension in the outer ClientHello to indicate support for supplemental authentication while withholding the specific request parameters until the encrypted inner ClientHello is processed.<a href="#section-7.5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="session-resumption">
+<section id="section-7.6">
+        <h3 id="name-session-resumption">
+<a href="#section-7.6" class="section-number selfRef">7.6. </a><a href="#name-session-resumption" class="section-name selfRef">Session Resumption</a>
+        </h3>
+<p id="section-7.6-1">The <code>resumption_master_secret</code> is derived from <code>ClientHello...client Finished</code> per Section 7.1 of <span>[<a href="#TLS" class="cite xref">TLS</a>]</span> and does not include supplemental authentication messages. A server <span class="bcp14">MUST NOT</span> send a <code>NewSessionTicket</code> message until all supplemental authentication sequences from both endpoints have been completed. This ensures that a resumed session is not established before the supplemental authentication guarantees of the original session have been fully established.<a href="#section-7.6-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1777,8 +1811,7 @@ Finished
 <section id="appendix-A">
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
-      </h2>
-<p id="appendix-A-1">TODO acknowledge.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+    </h2>
 </section>
 </div>
 <div id="authors-addresses">
@@ -1792,6 +1825,18 @@ Finished
 <div class="email">
 <span>Email:</span>
 <a href="mailto:yrosomakho@zscaler.com" class="email">yrosomakho@zscaler.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Tirumaleswar Reddy</span></div>
+<div dir="auto" class="left"><span class="org">Nokia</span></div>
+<div dir="auto" class="left">
+<span class="locality">Bangalore</span> </div>
+<div dir="auto" class="left"><span class="region">Karnataka</span></div>
+<div dir="auto" class="left"><span class="country-name">India</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:k.tirumaleswar_reddy@nokia.com" class="email">k.tirumaleswar_reddy@nokia.com</a>
 </div>
 </address>
 <address class="vcard">
