@@ -40,6 +40,12 @@ author:
     organization: Ciena
     country: Canada
     email: rifaat.s.ietf@gmail.com
+ -
+    fullname: Hannes Tschofenig
+    organization: University of the Bundeswehr Munich
+    abbrev: UniBw M.
+    country: Germany
+    email: hannes.tschofenig@gmx.net
 
 normative:
 
