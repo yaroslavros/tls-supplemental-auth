@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-10T02:07:06.593551+00:00",
+  "timestamp": "2026-05-17T02:13:37.572802+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -55,7 +55,7 @@
       "id": "I_kwDORhrY5M7xBJ_z",
       "title": "Handshake Context for supplemental authentication is not defined",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/1",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tireddy2",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -64,8 +64,8 @@
       "labels": [],
       "body": "The draft describes transcript construction for supplemental authentication, but it does not explicitly define this in terms of the Handshake Context defined in Section 4.4 of TLS 1.3. \n\nThe draft should explicitly define the Handshake Context used for supplemental authentication sequences.\n\na) The Handshake Context will differ between the client and the server, consistent with the Table in Section 4.4.\nb) The Handshake Context should include the CertificateRequest message that carries the supplemental_certificate_requests extension.\n\nPreviously transmitted supplemental authentication messages would become part of the evolving Handshake Context, so that each subsequent CertificateVerify and Finished computation includes them.\n\nApart from the definition of the Handshake Context, the construction of CertificateVerify and Finished should follow the same rules defined in Section 4.4 of TLS 1.3.",
       "createdAt": "2026-03-09T06:21:09Z",
-      "updatedAt": "2026-03-16T06:58:11Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-15T21:18:01Z",
+      "closedAt": "2026-05-15T21:18:01Z",
       "comments": [
         {
           "author": "yaroslavros",
@@ -80,6 +80,13 @@
           "body": "> Good point. The text should be more explicit\n\nYou can assign it to me, I will address it. ",
           "createdAt": "2026-03-15T07:26:28Z",
           "updatedAt": "2026-03-15T07:26:28Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Closing as addressed in https://github.com/yaroslavros/tls-supplemental-auth/pull/16",
+          "createdAt": "2026-05-15T21:18:01Z",
+          "updatedAt": "2026-05-15T21:18:01Z"
         }
       ]
     },
@@ -88,7 +95,7 @@
       "id": "I_kwDORhrY5M7xBN4y",
       "title": "Base key for supplemental Finished not specified",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/2",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tireddy2",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -97,8 +104,8 @@
       "labels": [],
       "body": "Since supplemental authentication occurs after the handshake, Base Key should be [sender]_application_traffic_secret_N. ",
       "createdAt": "2026-03-09T06:25:29Z",
-      "updatedAt": "2026-03-16T06:58:25Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-15T21:18:22Z",
+      "closedAt": "2026-05-15T21:18:22Z",
       "comments": [
         {
           "author": "yaroslavros",
@@ -113,6 +120,13 @@
           "body": "> Excellent point! Thank you\n\nYou can assign it to me, I will fix it. ",
           "createdAt": "2026-03-15T07:27:01Z",
           "updatedAt": "2026-03-15T07:27:01Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Closing as addressed in https://github.com/yaroslavros/tls-supplemental-auth/pull/16",
+          "createdAt": "2026-05-15T21:18:22Z",
+          "updatedAt": "2026-05-15T21:18:22Z"
         }
       ]
     },
@@ -166,15 +180,15 @@
       "id": "I_kwDORhrY5M7xBYY4",
       "title": "Compatibility with QUIC post-handshake restrictions",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/4",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tireddy2",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "RFC 9001 states that servers MUST NOT use post-handshake client authentication and specifically:\n\nservers MUST NOT send post-handshake TLS CertificateRequest messages, and clients MUST treat receipt of such messages as a connection error of type PROTOCOL_VIOLATION.\n\nSince this draft introduces additional Certificate, CertificateVerify, and Finished authentication sequences after the handshake, it is unclear how this mechanism would operate over QUIC without violating the QUIC-TLS restriction.\n\n",
       "createdAt": "2026-03-09T06:38:33Z",
-      "updatedAt": "2026-03-15T05:34:50Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-15T21:20:19Z",
+      "closedAt": "2026-05-15T21:20:19Z",
       "comments": [
         {
           "author": "yaroslavros",
@@ -238,15 +252,15 @@
       "id": "I_kwDORhrY5M7xBgTX",
       "title": "application data be exchanged relative to supplemental authentication",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/7",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tireddy2",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Whether application data can be sent after each supplemental authentication sequence, or only after all supplemental authentication has completed ?",
       "createdAt": "2026-03-09T06:47:44Z",
-      "updatedAt": "2026-03-15T05:32:01Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-15T21:21:01Z",
+      "closedAt": "2026-05-15T21:21:01Z",
       "comments": [
         {
           "author": "yaroslavros",
@@ -417,7 +431,7 @@
       "labels": [],
       "body": "# Application Policy Enforcement\n\nApplications making use of supplemental authentication must define a clear and unambiguous policy for interpreting the set of authentication statements presented in the TLS handshake and subsequent supplemental authentication flights. This policy dictates the requirements for establishing a connection and for granting access to specific resources.\nWhen evaluating a connection, the application's policy engine must consider all received authentication statements, as well as the absence of expected statements, as inputs to its authorization decision. Incorrect or incomplete policy evaluation can lead to severe security vulnerabilities.\n\nEndpoints should perform their complete policy evaluation after all supplemental authentication flights are complete and before processing any application data. If the full set of presented identities does not satisfy the application's policy, the endpoint must terminate the connection, preferably with a specific alert (e.g., bad_certificate or access_denied).\n\n\n# Policy Enforcement Scenarios\n\nThe following non-normative examples illustrate how application policy interacts with the supplemental authentication mechanism.\n\n## Hybrid Post-Quantum and Traditional Authentication\n\nA high-security client has a local policy requiring that all connections to a specific server be mutually authenticated using both a traditional ECDSA certificate and a post-quantum ML-DSA certificate.\n\n- Client Policy: Connection requires client authentication with both an ECDSA certificate and a ML-DSA certificate.\n\n- Handshake: The server sends a CertificateRequest message.\n\n    Success: The server includes the supplemental_certificate_requests extension. The main request asks for an ECDSA certificate, and a supplemental request asks for a ML-DSA certificate. The client is able to satisfy both and proceeds.\n\n    Failure: The server's CertificateRequest only asks for an ECDSA certificate and does not include a supplemental request for ML-DSA. Upon receiving the CertificateRequest, the client's policy engine determines that its mandatory requirement for dual authentication cannot be met. The client must abort the handshake by sending a handshake_failure alert. It is a policy violation to proceed with a connection that is only partially authenticated according to its own requirements.\n\n## Device and User Identity\n\nA service provider uses supplemental authentication to separate device and user identity for a remote access service. The policy grants different levels of access based on the combination of identities presented.\n\nServer Policy:\n\n- Any connection requires a valid, corporate-managed device certificate.\n- Access to the general user portal requires a valid user certificate in addition to the device certificate.\n- Access to the admin portal requires a valid user certificate with the \"admin\" role, in addition to the device certificate.\n\n\nHandshake: \n\nThe server sends a CertificateRequest asking for the device certificate in the main handshake and includes a supplemental_certificate_requests extension asking for a user certificate.\n\nServer Action:\n\n- If a client provides only a valid device certificate, the connection is established, but the application will deny access to any resource pending the user authentication. \n- If a client provides a valid device certificate and a valid standard user certificate, the application grants access to the general user portal but denies access to the admin portal.\n- If a client provides a valid device certificate and a valid admin user certificate, the application grants access to both portals.\n- If a client provides an invalid device certificate, the server must abort the handshake, regardless of what user certificate is offered. The primary authentication failed to meet the baseline policy.\n\n",
       "createdAt": "2026-03-27T13:22:32Z",
-      "updatedAt": "2026-04-08T06:11:05Z",
+      "updatedAt": "2026-05-15T21:16:48Z",
       "closedAt": null,
       "comments": [
         {
@@ -426,6 +440,13 @@
           "body": "I agree with the proposed policy section. \nWe will have to also elaborate the use cases; and justify the need for this draft. The use cases you listed are Enterprise specific. \n\n",
           "createdAt": "2026-04-08T06:11:05Z",
           "updatedAt": "2026-04-08T06:11:05Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "I think this is a good section to include in the appendix. @rifaat-ietf do you want to propose a PR?",
+          "createdAt": "2026-05-15T21:16:48Z",
+          "updatedAt": "2026-05-15T21:16:48Z"
         }
       ]
     }
@@ -500,12 +521,12 @@
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/15",
       "state": "OPEN",
       "author": "hannestschofenig",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2026-04-01T09:33:34Z",
-      "updatedAt": "2026-04-12T22:34:58Z",
+      "updatedAt": "2026-05-15T21:14:03Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
@@ -523,6 +544,13 @@
           "body": "Text changes except for QUIC look good!\r\n\r\n@hannestschofenig please look at my comments above and also add yourself as a co-author.",
           "createdAt": "2026-04-12T22:34:57Z",
           "updatedAt": "2026-04-12T22:34:57Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@hannestschofenig please finish this PR. It would be great to merge it before publishing!",
+          "createdAt": "2026-05-15T21:14:03Z",
+          "updatedAt": "2026-05-15T21:14:03Z"
         }
       ],
       "reviews": [
@@ -532,7 +560,7 @@
             "abbreviatedOid": "2811852"
           },
           "author": "hannestschofenig",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2026-04-01T16:21:34Z",
@@ -552,7 +580,7 @@
             "abbreviatedOid": "2811852"
           },
           "author": "hannestschofenig",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2026-04-01T16:37:12Z",
@@ -572,7 +600,7 @@
             "abbreviatedOid": "2811852"
           },
           "author": "hannestschofenig",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2026-04-01T16:46:21Z",
@@ -592,7 +620,7 @@
             "abbreviatedOid": "a169005"
           },
           "author": "hannestschofenig",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2026-04-01T16:47:50Z",
@@ -1008,24 +1036,26 @@
       "id": "PR_kwDORhrY5M7YuHC0",
       "title": "Author Update",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/17",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "hannestschofenig",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2026-05-06T10:10:12Z",
-      "updatedAt": "2026-05-07T05:34:55Z",
+      "updatedAt": "2026-05-15T21:13:00Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "692bd87b1ec15c1e853ae96fab37dd3bf6c09bae",
       "headRepository": "hannestschofenig/tls-supplemental-auth",
       "headRefName": "patch-1",
       "headRefOid": "e63075c788e5e8515a85955152c9a7efea1ae345",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-05-15T21:13:00Z",
+      "mergedAt": "2026-05-15T21:13:00Z",
+      "mergedBy": "yaroslavros",
+      "mergeCommit": {
+        "oid": "bf4c9f8dc633c5b62f125593087157e67e00afcc"
+      },
       "comments": [],
       "reviews": [
         {
@@ -1039,6 +1069,19 @@
           "body": "",
           "createdAt": "2026-05-07T05:34:55Z",
           "updatedAt": "2026-05-07T05:34:55Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDORhrY5M8AAAABAGK4Aw",
+          "commit": {
+            "abbreviatedOid": "e63075c"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-05-15T21:12:16Z",
+          "updatedAt": "2026-05-15T21:12:16Z",
           "comments": []
         }
       ]
