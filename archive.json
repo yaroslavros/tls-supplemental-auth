@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-17T02:13:37.572802+00:00",
+  "timestamp": "2026-05-26T02:29:24.875358+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -211,7 +211,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:41:46Z",
-      "updatedAt": "2026-03-15T05:33:20Z",
+      "updatedAt": "2026-05-25T06:27:21Z",
       "closedAt": null,
       "comments": [
         {
@@ -220,6 +220,13 @@
           "body": "Why not?\n\nEmpty `CertificateRequest` is allowed.",
           "createdAt": "2026-03-15T05:33:20Z",
           "updatedAt": "2026-03-15T05:33:20Z"
+        },
+        {
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Empty `CertificateRequest` is allowed.\n\nNo, empty CertificateRequest is not allowed, see https://datatracker.ietf.org/doc/html/rfc8446#section-4.3.2 ",
+          "createdAt": "2026-05-25T06:27:21Z",
+          "updatedAt": "2026-05-25T06:27:21Z"
         }
       ]
     },
@@ -228,15 +235,15 @@
       "id": "I_kwDORhrY5M7xBcfD",
       "title": "Clarity on cross-flight of supplemental authentication messages",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/6",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tireddy2",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:43:50Z",
-      "updatedAt": "2026-03-15T05:32:48Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-25T06:23:20Z",
+      "closedAt": "2026-05-25T06:23:20Z",
       "comments": [
         {
           "author": "yaroslavros",
@@ -244,6 +251,13 @@
           "body": "Can you please clarify the question?\n\nClient and Server can send their supplemental authentication messages at the same time if they wish.",
           "createdAt": "2026-03-15T05:32:48Z",
           "updatedAt": "2026-03-15T05:32:48Z"
+        },
+        {
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The revised Transcript Construction section addresses this. Each endpoint maintains its own independent Handshake Context that includes only its own previously sent authentication sequences, not the peer's. ",
+          "createdAt": "2026-05-25T06:23:20Z",
+          "updatedAt": "2026-05-25T06:23:20Z"
         }
       ]
     },
@@ -338,15 +352,15 @@
       "id": "I_kwDORhrY5M7xBkjS",
       "title": "identity to provide for supplemental authentication",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/10",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tireddy2",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "It is not clear how a responding endpoint determines which identity or certificate chain to present, especially when the peers are not managed by the same administrative entity.  It looks the proposed draft will only work in deployments where both the peers are managed by the same entity. ",
       "createdAt": "2026-03-09T06:53:16Z",
-      "updatedAt": "2026-03-15T05:24:49Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-25T06:18:33Z",
+      "closedAt": "2026-05-25T06:18:33Z",
       "comments": [
         {
           "author": "yaroslavros",
