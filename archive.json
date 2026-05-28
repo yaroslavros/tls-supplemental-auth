@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-26T02:29:24.875358+00:00",
+  "timestamp": "2026-05-28T02:25:33.265831+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -211,7 +211,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:41:46Z",
-      "updatedAt": "2026-05-25T06:27:21Z",
+      "updatedAt": "2026-05-26T21:39:28Z",
       "closedAt": null,
       "comments": [
         {
@@ -227,6 +227,13 @@
           "body": "> Empty `CertificateRequest` is allowed.\n\nNo, empty CertificateRequest is not allowed, see https://datatracker.ietf.org/doc/html/rfc8446#section-4.3.2 ",
           "createdAt": "2026-05-25T06:27:21Z",
           "updatedAt": "2026-05-25T06:27:21Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "After thinking more about this, I suggest to explicitly allow empty `supplemental_certificate_request` which would imply that `signature_algorithms` are inherited from either `ClientHello` or `CertificateRequest`.\n\nI'll craft a PR in upcoming days.",
+          "createdAt": "2026-05-26T21:39:28Z",
+          "updatedAt": "2026-05-26T21:39:28Z"
         }
       ]
     },
