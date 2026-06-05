@@ -425,4 +425,56 @@ ANA is requested to add the following entry to the "TLS Flags" extension registr
 --- back
 
 # Acknowledgments
+
+# Appendix
+
+## Application Policy Enforcement
+
+Applications making use of supplemental authentication must define a clear and unambiguous policy for interpreting the set of authentication statements presented in the TLS handshake and subsequent supplemental authentication flights. This policy dictates the requirements for establishing a connection and for granting access to specific resources.
+When evaluating a connection, the application's policy engine must consider all received authentication statements, as well as the absence of expected statements, as inputs to its authorization decision. Incorrect or incomplete policy evaluation can lead to severe security vulnerabilities.
+
+Endpoints should perform their complete policy evaluation after all supplemental authentication flights are complete and before processing any application data. If the full set of presented identities does not satisfy the application's policy, the endpoint must terminate the connection, preferably with a specific alert (e.g., bad_certificate or access_denied).
+
+## Policy Enforcement Scenarios
+
+The following non-normative examples illustrate how application policy interacts with the supplemental authentication mechanism.
+
+### Hybrid Post-Quantum and Traditional Authentication
+
+A high-security client has a local policy requiring that all connections to a specific server be mutually authenticated using both a traditional ECDSA certificate and a post-quantum ML-DSA certificate.
+
+* Client Policy: Connection requires client authentication with both an ECDSA certificate and a ML-DSA certificate.
+
+* Handshake: The server sends a CertificateRequest message.
+
+* Success: The server includes the supplemental_certificate_requests extension. The main request asks for an ECDSA certificate, and a supplemental request asks for a ML-DSA certificate. The client is able to satisfy both and proceeds.
+
+* Failure: The server's CertificateRequest only asks for an ECDSA certificate and does not include a supplemental request for ML-DSA. Upon receiving the CertificateRequest, the client's policy engine determines that its mandatory requirement for dual authentication cannot be met. The client must abort the handshake by sending a handshake_failure alert. It is a policy violation to proceed with a connection that is only partially authenticated according to its own requirements.
+
+
+### Device and User Identity
+
+A service provider uses supplemental authentication to separate device and user identity for a remote access service. The policy grants different levels of access based on the combination of identities presented.
+
+Server Policy:
+
+* Any connection requires a valid, corporate-managed device certificate.
+* Access to the general user portal requires a valid user certificate in addition to the device certificate.
+* Access to the admin portal requires a valid user certificate with the "admin" role, in addition to the device certificate.
+
+
+Handshake:
+
+The server sends a CertificateRequest asking for the device certificate in the main handshake and includes a supplemental_certificate_requests extension asking for a user certificate.
+
+
+Server Action:
+
+* If a client provides only a valid device certificate, the connection is established, but the application will deny access to any resource pending the user authentication.
+* If a client provides a valid device certificate and a valid standard user certificate, the application grants access to the general user portal but denies access to the admin portal.
+* If a client provides a valid device certificate and a valid admin user certificate, the application grants access to both portals.
+* If a client provides an invalid device certificate, the server must abort the handshake, regardless of what user certificate is offered. The primary authentication failed to meet the baseline policy.
+
+
+
 {:numbered="false"}
