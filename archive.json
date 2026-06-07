@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-28T02:25:33.265831+00:00",
+  "timestamp": "2026-06-07T02:44:06.204235+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -1106,6 +1106,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 18,
+      "id": "PR_kwDORhrY5M7jL6cf",
+      "title": "appendix with policy details",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/18",
+      "state": "OPEN",
+      "author": "rifaat-ietf",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-06-05T16:58:46Z",
+      "updatedAt": "2026-06-05T16:58:47Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "rifaat",
+      "headRefOid": "8154c680d7790239995fdc79ba4bf95d509d4182",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
