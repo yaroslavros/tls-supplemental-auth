@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Supplemental Authentication in TLS 1.3</title>
+<meta content="Yaroslav Rosomakho" name="author">
+<meta content="Tirumaleswar Reddy" name="author">
+<meta content="Rifaat Shekh-Yusef" name="author">
+<meta content="Hannes Tschofenig" name="author">
+<meta content="
+       TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions. 
+       This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange. 
+    " name="description">
+<meta content="xml2rfc 3.34.0" name="generator">
+<meta content="tls" name="keyword">
+<meta content="supplemental authentication" name="keyword">
+<meta content="secondary certificates" name="keyword">
+<meta content="draft-rosomakho-tls-supplemental-auth-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.0
+    Python 3.14.5
+    ConfigArgParse 1.7.5
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.10.0
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.8.1
+-->
+<link href="draft-rosomakho-tls-supplemental-auth.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">Supplemental Authentication in TLS 1.3</td>
+<td class="right">June 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Rosomakho, et al.</td>
+<td class="center">Expires 23 December 2026</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Transport Layer Security</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-rosomakho-tls-supplemental-auth-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-06-21" class="published">21 June 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2026-12-23">23 December 2026</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">Y. Rosomakho</div>
+<div class="org">Zscaler</div>
+</div>
+<div class="author">
+      <div class="author-name">T. Reddy</div>
+<div class="org">Nokia</div>
+</div>
+<div class="author">
+      <div class="author-name">R. Shekh-Yusef</div>
+<div class="org">Ciena</div>
+</div>
+<div class="author">
+      <div class="author-name">H. Tschofenig</div>
+<div class="org">UniBw M.</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Supplemental Authentication in TLS 1.3</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html">https://yaroslavros.github.io/tls-supplemental-auth/draft-rosomakho-tls-supplemental-auth.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-rosomakho-tls-supplemental-auth/">https://datatracker.ietf.org/doc/draft-rosomakho-tls-supplemental-auth/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        Transport Layer Security Working Group mailing list (<span><a href="mailto:tls@ietf.org">mailto:tls@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/tls/">https://mailarchive.ietf.org/arch/browse/tls/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/tls/">https://www.ietf.org/mailman/listinfo/tls/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/yaroslavros/tls-supplemental-auth">https://github.com/yaroslavros/tls-supplemental-auth</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 23 December 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-overview-of-supplemental-au" class="internal xref">Overview of Supplemental Authentication</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-server-supplemental-authent" class="internal xref">Server Supplemental Authentication Example</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-client-supplemental-authent" class="internal xref">Client Supplemental Authentication Example</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-the-supplemental_certificat" class="internal xref">The supplemental_certificate_requests Extension</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-the-supplemental_certificate" class="internal xref">The supplemental_certificate TLS flag</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-use-in-the-main-handshake" class="internal xref">Use in the Main Handshake</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-use-in-supplemental-authent" class="internal xref">Use in Supplemental Authentication Certificates</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-supplemental-authentication" class="internal xref">Supplemental Authentication Flights</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-record-protection" class="internal xref">Record Protection</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-transcript-construction" class="internal xref">Transcript Construction</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-request-matching" class="internal xref">Request Matching</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-message-ordering" class="internal xref">Message Ordering</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-authentication-binding" class="internal xref">Authentication Binding</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-message-ordering-and-integr" class="internal xref">Message Ordering and Integrity</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-authorization-semantics" class="internal xref">Authorization Semantics</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
+                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-resource-consumption" class="internal xref">Resource Consumption</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
+                <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-confidentiality-of-authenti" class="internal xref">Confidentiality of Authentication Requests</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6">
+                <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="auto internal xref">7.6</a>.  <a href="#name-session-resumption" class="internal xref">Session Resumption</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-tls-extension" class="internal xref">TLS Extension</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-tls-flag" class="internal xref">TLS Flag</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">TLS 1.3 <span>[<a href="#TLS" class="cite xref">TLS</a>]</span> allows endpoints to authenticate using certificates during the handshake. A server presents its certificate chain in the handshake <code>Certificate</code> message, and the server may request a client certificate using the <code>CertificateRequest</code> message. TLS 1.3 also defines post-handshake client authentication, which allows a server to request a client certificate after the handshake has completed.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Some deployments require presenting multiple certificate-based authentication statements bound to the same TLS connection. Examples include separating device and user authentication, presenting attestation evidence in addition to a device identity, or providing multiple certificate chains during cryptographic transitions such as migration to post-quantum algorithms. In these scenarios, multiple authentication statements may need to be associated with a single secure connection.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">While TLS 1.3 post-handshake authentication can be used to request additional client certificates, it is rarely deployed in practice. Post-handshake authentication is explicitly prohibited in HTTP/2 (<span><a href="https://rfc-editor.org/rfc/rfc9113#section-9.2.3" class="relref">Section 9.2.3</a> of [<a href="#H2" class="cite xref">H2</a>]</span>) and QUIC (<span><a href="https://rfc-editor.org/rfc/rfc9001#section-4.4" class="relref">Section 4.4</a> of [<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">This document defines Supplemental Authentication for TLS 1.3. Supplemental authentication allows endpoints to present additional certificate-based authentication messages immediately after the handshake completes. These additional authentication statements are cryptographically bound to the TLS connection and reuse the existing <code>Certificate</code>, <code>CertificateVerify</code>, and <code>Finished</code> message structure defined by TLS 1.3.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using a new <code>supplemental_certificate_requests</code> extension. When accepted, one or more supplemental authentication flights may be sent
+after the handshake and before the sender transmits application data.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">Supplemental authentication extends the existing TLS certificate authentication mechanism. It does not replace primary certificate authentication performed during the handshake and does not change the semantics of TLS authentication or authorization decisions, which remain application-specific.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">The mechanism defined in this document can also be used with DTLS 1.3 <span>[<a href="#DTLS" class="cite xref">DTLS</a>]</span> and protocols that use the TLS 1.3 handshake such as QUIC <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>.<a href="#section-1-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="overview-of-supplemental-authentication">
+<section id="section-3">
+      <h2 id="name-overview-of-supplemental-au">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-overview-of-supplemental-au" class="section-name selfRef">Overview of Supplemental Authentication</a>
+      </h2>
+<p id="section-3-1">Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">A fundamental concept of this specification is the clear separation between the "Main Handshake" and the "Supplemental Authentication phase". The Main Handshake is considered complete upon the successful processing of the initial Finished messages by both endpoints, at which point a secure connection is established and application traffic keys are available.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">These additional authentication statements are exchanged immediately after the TLS main handshake, but before application data is exchanged, and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the <code>supplemental_certificate_requests</code> extension. This extension can appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages and contains <code>SupplementalCertificateRequest</code> structures that describe the requested authentication contexts and associated parameters.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">A peer that is willing to provide supplemental authentication indicates acceptance by including the <code>supplemental_certificate</code> extension in its main handshake <code>Certificate</code> message. The presence of this extension indicates that the sender will transmit at least one additional authentication flight after the handshake completes.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">Each supplemental authentication flight consists of the TLS 1.3 authentication message sequence:<a href="#section-3-6" class="pilcrow">¶</a></p>
+<span id="name-tls-13-authentication-messa"></span><div id="fig-tls-auth-messages">
+<figure id="figure-1">
+        <div class="alignLeft art-text artwork" id="section-3-7.1">
+<pre>
+Certificate
+CertificateVerify
+Finished
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-tls-13-authentication-messa" class="selfRef">TLS 1.3 authentication message sequence</a>
+        </figcaption></figure>
+</div>
+<p id="section-3-8">These messages are processed using the same cryptographic mechanisms defined for certificate authentication in TLS 1.3. Supplemental authentication flights are sent after the handshake <code>Finished</code> message and are protected using the established connection keys.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<p id="section-3-9">Multiple supplemental authentication flights may be sent by a single endpoint. If the <code>supplemental_certificate</code> extension is present in a supplemental <code>Certificate</code> message, it indicates that another supplemental authentication flight will follow. If the extension is absent, the <code>Certificate</code> message is the final supplemental authentication flight sent by that endpoint.<a href="#section-3-9" class="pilcrow">¶</a></p>
+<p id="section-3-10">Supplemental authentication flights from a given sender <span class="bcp14">MUST</span> form a contiguous sequence of handshake messages. An endpoint <span class="bcp14">MUST NOT</span> interleave application data or other TLS messages with its supplemental authentication flights.<a href="#section-3-10" class="pilcrow">¶</a></p>
+<p id="section-3-11">Each supplemental authentication flight satisfies at most one <code>SupplementalCertificateRequest</code>. A sender <span class="bcp14">MAY</span> transmit multiple supplemental authentication flights that satisfy the same request, provided that the number of flights does not exceed the <code>max_certificates</code> value specified in the corresponding request.<a href="#section-3-11" class="pilcrow">¶</a></p>
+<p id="section-3-12">Supplemental authentication flights for different request contexts <span class="bcp14">MAY</span> appear in any order. The receiver determines which <code>SupplementalCertificateRequest</code>, if any, a supplemental authentication flight satisfies based on the <code>certificate_request_context</code> value.<a href="#section-3-12" class="pilcrow">¶</a></p>
+<p id="section-3-13">The following sections illustrate typical message flows.<a href="#section-3-13" class="pilcrow">¶</a></p>
+<div id="server-supplemental-authentication-example">
+<section id="section-3.1">
+        <h3 id="name-server-supplemental-authent">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-server-supplemental-authent" class="section-name selfRef">Server Supplemental Authentication Example</a>
+        </h3>
+<p id="section-3.1-1">In this example, the client requests additional authentication statements from the server using the <code>supplemental_certificate_requests</code> extension in the <code>ClientHello</code>. The server indicates acceptance in its handshake <code>Certificate</code> message and sends two supplemental authentication flights after the handshake.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<span id="name-server-supplemental-authenti"></span><div id="fig-tls-server-supplemental-auth-example">
+<figure id="figure-2">
+          <div id="section-3.1-2.1">
+            <div class="alignLeft art-svg artwork" id="section-3.1-2.1.1">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="368" width="592" viewBox="0 0 592 368" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px" stroke-linecap="round">
+                <path d="M 8,48 L 48,48" fill="none" stroke="black"></path>
+                <path d="M 400,48 L 440,48" fill="none" stroke="black"></path>
+                <path d="M 192,112 L 256,112" fill="none" stroke="black"></path>
+                <path d="M 192,336 L 256,336" fill="none" stroke="black"></path>
+                <polygon class="arrowhead" points="264,112 252,106.4 252,117.6" fill="black" transform="rotate(0,256,112)"></polygon>
+                <polygon class="arrowhead" points="200,336 188,330.4 188,341.6" fill="black" transform="rotate(180,192,336)"></polygon>
+                <g class="text">
+                  <text x="28" y="36">Client</text>
+                  <text x="420" y="36">Server</text>
+                  <text x="48" y="84">ClientHello</text>
+                  <text x="24" y="100">+</text>
+                  <text x="168" y="100">supplemental_certificate_requests</text>
+                  <text x="408" y="132">ServerHello</text>
+                  <text x="440" y="148">EncryptedExtensions</text>
+                  <text x="408" y="164">Certificate</text>
+                  <text x="384" y="180">+</text>
+                  <text x="492" y="180">supplemental_certificate</text>
+                  <text x="432" y="196">CertificateVerify</text>
+                  <text x="396" y="212">Finished</text>
+                  <text x="408" y="228">Certificate</text>
+                  <text x="384" y="244">+</text>
+                  <text x="492" y="244">supplemental_certificate</text>
+                  <text x="432" y="260">CertificateVerify</text>
+                  <text x="396" y="276">Finished</text>
+                  <text x="408" y="292">Certificate</text>
+                  <text x="432" y="308">CertificateVerify</text>
+                  <text x="396" y="324">Finished</text>
+                </g>
+              </svg><a href="#section-3.1-2.1.1" class="pilcrow">¶</a>
+</div>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-server-supplemental-authenti" class="selfRef">Server Supplemental Authentication example</a>
+          </figcaption></figure>
+</div>
+</section>
+</div>
+<div id="client-supplemental-authentication-example">
+<section id="section-3.2">
+        <h3 id="name-client-supplemental-authent">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-client-supplemental-authent" class="section-name selfRef">Client Supplemental Authentication Example</a>
+        </h3>
+<p id="section-3.2-1">In this example, the server requests additional authentication statements from the client using the <code>supplemental_certificate_requests</code> extension in the <code>CertificateRequest</code> message. The client responds with two supplemental authentication flights after the handshake.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<span id="name-client-supplemental-authenti"></span><div id="fig-tls-client-supplemental-auth-example">
+<figure id="figure-3">
+          <div id="section-3.2-2.1">
+            <div class="alignLeft art-svg artwork" id="section-3.2-2.1.1">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="448" width="664" viewBox="0 0 664 448" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px" stroke-linecap="round">
+                <path d="M 8,48 L 48,48" fill="none" stroke="black"></path>
+                <path d="M 400,48 L 440,48" fill="none" stroke="black"></path>
+                <path d="M 192,96 L 256,96" fill="none" stroke="black"></path>
+                <path d="M 192,224 L 256,224" fill="none" stroke="black"></path>
+                <path d="M 192,416 L 256,416" fill="none" stroke="black"></path>
+                <polygon class="arrowhead" points="264,416 252,410.4 252,421.6" fill="black" transform="rotate(0,256,416)"></polygon>
+                <polygon class="arrowhead" points="264,96 252,90.4 252,101.6" fill="black" transform="rotate(0,256,96)"></polygon>
+                <polygon class="arrowhead" points="200,224 188,218.4 188,229.6" fill="black" transform="rotate(180,192,224)"></polygon>
+                <g class="text">
+                  <text x="28" y="36">Client</text>
+                  <text x="420" y="36">Server</text>
+                  <text x="48" y="84">ClientHello</text>
+                  <text x="408" y="116">ServerHello</text>
+                  <text x="440" y="132">EncryptedExtensions</text>
+                  <text x="436" y="148">CertificateRequest</text>
+                  <text x="384" y="164">+</text>
+                  <text x="528" y="164">supplemental_certificate_requests</text>
+                  <text x="408" y="180">Certificate</text>
+                  <text x="432" y="196">CertificateVerify</text>
+                  <text x="396" y="212">Finished</text>
+                  <text x="48" y="244">Certificate</text>
+                  <text x="16" y="260">+</text>
+                  <text x="124" y="260">supplemental_certificate</text>
+                  <text x="72" y="276">CertificateVerify</text>
+                  <text x="36" y="292">Finished</text>
+                  <text x="48" y="308">Certificate</text>
+                  <text x="16" y="324">+</text>
+                  <text x="124" y="324">supplemental_certificate</text>
+                  <text x="72" y="340">CertificateVerify</text>
+                  <text x="36" y="356">Finished</text>
+                  <text x="48" y="372">Certificate</text>
+                  <text x="72" y="388">CertificateVerify</text>
+                  <text x="36" y="404">Finished</text>
+                </g>
+              </svg><a href="#section-3.2-2.1.1" class="pilcrow">¶</a>
+</div>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-client-supplemental-authenti" class="selfRef">Client Supplemental Authentication example</a>
+          </figcaption></figure>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="the-supplementalcertificaterequests-extension">
+<section id="section-4">
+      <h2 id="name-the-supplemental_certificat">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-the-supplemental_certificat" class="section-name selfRef">The supplemental_certificate_requests Extension</a>
+      </h2>
+<p id="section-4-1">The <code>supplemental_certificate_requests</code> TLS extension is used to signal support for supplemental authentication and to optionally request additional certificate-based authentication statements from the peer.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">This extension <span class="bcp14">MAY</span> appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages:<a href="#section-4-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-3.1">
+          <p id="section-4-3.1.1">When included in a <code>ClientHello</code>, the extension indicates that the client supports supplemental authentication and optionally requests supplemental authentication statements from the server.<a href="#section-4-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.2">
+          <p id="section-4-3.2.1">When included in a <code>CertificateRequest</code>, the extension indicates that the server supports supplemental authentication and optionally requests supplemental authentication statements from the client.<a href="#section-4-3.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-4-4">The extension contains a list of <code>SupplementalCertificateRequest</code> structures describing requested supplemental authentication contexts.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">The extension structure is defined as follows:<a href="#section-4-5" class="pilcrow">¶</a></p>
+<span id="name-supplemental_certificate_re"></span><div id="fig-supplemental-certificate-requests">
+<figure id="figure-4">
+        <div class="alignLeft art-text artwork" id="section-4-6.1">
+<pre>
+struct {
+  uint8 max_certificates;
+  opaque certificate_request_context&lt;0..255&gt;;
+  Extension extensions&lt;2..2^16-1&gt;;
+} SupplementalCertificateRequest;
+
+struct {
+  SupplementalCertificateRequest requests&lt;0..2^16-1&gt;;
+} SupplementalCertificateRequests;
+</pre>
+</div>
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<a href="#name-supplemental_certificate_re" class="selfRef">supplemental_certificate_requests Extension Structure</a>
+        </figcaption></figure>
+</div>
+<p id="section-4-7">The requests field contains zero or more <code>SupplementalCertificateRequest</code> structures.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-8">If the list is empty, the sender indicates willingness to receive supplemental authentication statements without specifying any particular request contexts.<a href="#section-4-8" class="pilcrow">¶</a></p>
+<p id="section-4-9">Each <code>SupplementalCertificateRequest</code> describes a requested supplemental authentication context and the parameters associated with that request.<a href="#section-4-9" class="pilcrow">¶</a></p>
+<p id="section-4-10">The fields of <code>SupplementalCertificateRequest</code> are defined as follows:<a href="#section-4-10" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-11">
+        <dt id="section-4-11.1">
+<strong>max_certificates</strong>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-11.2">
+          <p id="section-4-11.2.1">A limit on the number of supplemental authentication flights that the peer may send in response to this request. The value specifies the maximum number of Certificate authentication flights that may satisfy this request. The value <span class="bcp14">MUST</span> be greater than zero.<a href="#section-4-11.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-4-11.3">
+<strong>certificate_request_context</strong>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-11.4">
+          <p id="section-4-11.4.1">An opaque value used to identify this supplemental authentication request. This value is carried in the <code>certificate_request_context</code> field of the <code>Certificate</code> message sent in response to this request.<a href="#section-4-11.4.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-4-12">Within a single <code>supplemental_certificate_requests</code> extension, each <code>certificate_request_context</code> value <span class="bcp14">MUST</span> be unique. If more than one <code>SupplementalCertificateRequest</code> structure is present, at most one of them <span class="bcp14">MAY</span> use an empty <code>certificate_request_context</code>.<a href="#section-4-12" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-13">
+        <dt id="section-4-13.1">
+<strong>extensions</strong>:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-13.2">
+          <p id="section-4-13.2.1">A list of extensions that describe parameters associated with this request. These extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 <code>CertificateRequest</code> message. Only extensions that are valid in a <code>CertificateRequest</code> message <span class="bcp14">MAY</span> appear in this list. The <code>supplemental_certificate_requests</code> extension <span class="bcp14">MUST NOT</span> appear in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>.<a href="#section-4-13.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-4-14">If an extension is not present in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake.<a href="#section-4-14" class="pilcrow">¶</a></p>
+<p id="section-4-15">When the <code>supplemental_certificate_requests</code> extension appears in the <code>ClientHello</code>, the inherited values are taken from the client's
+<code>ClientHello</code>. When the extension appears in a <code>CertificateRequest</code>, the inherited values are taken from the parameters of the enclosing <code>CertificateRequest</code> message.<a href="#section-4-15" class="pilcrow">¶</a></p>
+<p id="section-4-16">A peer receiving the <code>supplemental_certificate_requests</code> extension <span class="bcp14">MAY</span> respond to zero or more of the contained <code>SupplementalCertificateRequest</code> structures. For a given request, the peer <span class="bcp14">MAY</span> send between zero and <code>max_certificates</code> supplemental authentication flights.<a href="#section-4-16" class="pilcrow">¶</a></p>
+<p id="section-4-17">If a peer sends a supplemental authentication flight in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding <code>SupplementalCertificateRequest</code>.<a href="#section-4-17" class="pilcrow">¶</a></p>
+<p id="section-4-18">The following is an example of SupplementalCertificateRequests:<a href="#section-4-18" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-19">
+<pre>
+SupplementalCertificateRequests {
+  requests = [
+    // Request for the Device Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "device-identity",
+      extensions = { device cert specific extensions ... }
+    },
+
+    // Request for the User Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "user-identity",
+      extensions = { user cert specific extensions ... }
+    }
+  ]
+}
+</pre><a href="#section-4-19" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="the-supplementalcertificate-tls-flag">
+<section id="section-5">
+      <h2 id="name-the-supplemental_certificate">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-the-supplemental_certificate" class="section-name selfRef">The supplemental_certificate TLS flag</a>
+      </h2>
+<p id="section-5-1">The <code>supplemental_certificate</code> TLS flag signals the use of supplemental authentication.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">This flag is defined as a TLS flag as specified in <span>[<a href="#TLS-FLAGS" class="cite xref">TLS-FLAGS</a>]</span> and may appear in a <code>Certificate</code> message.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">The semantics of this flag depend on the context in which it appears.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<div id="use-in-the-main-handshake">
+<section id="section-5.1">
+        <h3 id="name-use-in-the-main-handshake">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-use-in-the-main-handshake" class="section-name selfRef">Use in the Main Handshake</a>
+        </h3>
+<p id="section-5.1-1">When the <code>supplemental_certificate</code> flag appears in the main handshake <code>Certificate</code> message, it indicates that the sender will transmit at least one additional certificate authentication sequence after the TLS handshake has completed.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">An endpoint <span class="bcp14">MUST NOT</span> set the <code>supplemental_certificate</code> flag in its main handshake <code>Certificate</code> message unless the peer indicated willingness to receive supplemental authentication by including the <code>supplemental_certificate_requests</code> extension.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="use-in-supplemental-authentication-certificates">
+<section id="section-5.2">
+        <h3 id="name-use-in-supplemental-authent">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-use-in-supplemental-authent" class="section-name selfRef">Use in Supplemental Authentication Certificates</a>
+        </h3>
+<p id="section-5.2-1">When the <code>supplemental_certificate</code> flag appears in a <code>Certificate</code> message sent after the handshake, it indicates that another supplemental authentication sequence will follow.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">If the flag is absent from a supplemental <code>Certificate</code> message, that <code>Certificate</code> message is the final supplemental authentication sequence sent by that endpoint.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="supplemental-authentication-flights">
+<section id="section-6">
+      <h2 id="name-supplemental-authentication">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-supplemental-authentication" class="section-name selfRef">Supplemental Authentication Flights</a>
+      </h2>
+<p id="section-6-1">Supplemental authentication is performed using one or more additional certificate authentication sequences exchanged after the TLS handshake has completed.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">Each supplemental authentication sequence consists of the following TLS 1.3 authentication messages:<a href="#section-6-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-3">
+<pre>
+Certificate
+CertificateVerify
+Finished
+</pre><a href="#section-6-3" class="pilcrow">¶</a>
+</div>
+<p id="section-6-4">These messages use the same structure and processing rules as the corresponding TLS 1.3 handshake messages defined in <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<div id="record-protection">
+<section id="section-6.1">
+        <h3 id="name-record-protection">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-record-protection" class="section-name selfRef">Record Protection</a>
+        </h3>
+<p id="section-6.1-1">Server supplemental authentication messages are sent after the server's <code>Finished</code> message and client supplemental authentication messages are sent after the client's <code>Finished</code> message. Supplemental authentication messages are protected using the established application traffic secrets. The sender encrypts these messages using the application traffic keys in the same manner as application data records.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="transcript-construction">
+<section id="section-6.2">
+        <h3 id="name-transcript-construction">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-transcript-construction" class="section-name selfRef">Transcript Construction</a>
+        </h3>
+<p id="section-6.2-1">The <code>CertificateVerify</code> and <code>Finished</code> messages in each supplemental authentication sequence are computed using the same procedures defined in Section 4.4 of <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>, with the Handshake Context and Base Key as specified in the following table:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.2-2">
+<pre>
++--------------+-----------------------------+--------------------------------+
+| Mode         | Handshake Context           | Base Key                       |
++--------------+-----------------------------+--------------------------------+
+| Server       | ClientHello ... server      | server_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent server      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
+|              |                             |                                |
+| Client       | ClientHello ... client      | client_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent client      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
++--------------+-----------------------------+--------------------------------+
+</pre><a href="#section-6.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-6.2-3">The <code>CertificateVerify</code> and <code>Finished</code> messages are computed as defined in Section 4.4 of <span>[<a href="#TLS" class="cite xref">TLS</a>]</span>:<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.2-4">
+<pre>
+CertificateVerify: A signature over the value
+   Transcript-Hash(Handshake Context, Certificate).
+
+Finished: A MAC over the value Transcript-Hash(Handshake Context,
+   Certificate, CertificateVerify) using a MAC key derived from the
+   Base Key.
+</pre><a href="#section-6.2-4" class="pilcrow">¶</a>
+</div>
+<p id="section-6.2-5">After a supplemental authentication sequence is sent, its <code>Certificate</code>, <code>CertificateVerify</code>, and <code>Finished</code> messages are appended to the sender's Handshake Context, so that each subsequent sequence is bound to all previously transmitted sequences from that sender. Endpoints performing supplemental authentication <span class="bcp14">MUST</span> retain the transcript hash state at the end of the handshake and update it with each supplemental authentication message sent, until all supplemental authentication sequences have been transmitted.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+<p id="section-6.2-6">Unlike post-handshake client authentication, supplemental authentication messages received from the peer are not included in the sender's Handshake Context. This is because both endpoints may send supplemental authentication sequences concurrently, and including peer messages would require defining a deterministic interleaving order between the two endpoints' sequences, which this document does not define.<a href="#section-6.2-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="request-matching">
+<section id="section-6.3">
+        <h3 id="name-request-matching">
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-request-matching" class="section-name selfRef">Request Matching</a>
+        </h3>
+<p id="section-6.3-1">If the peer previously sent a <code>supplemental_certificate_requests</code> extension, a supplemental authentication sequence <span class="bcp14">MAY</span> satisfy one of the contained <code>SupplementalCertificateRequest</code> structures.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">If a supplemental authentication sequence is sent in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding SupplementalCertificateRequest.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">A sender <span class="bcp14">MAY</span> transmit multiple supplemental authentication sequences that satisfy the same request, provided that the number of sequences does not exceed the <code>max_certificates</code> value specified in the request.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
+<p id="section-6.3-4">A sender <span class="bcp14">MAY</span> also transmit supplemental authentication sequences that are not associated with any specific request context, in which case the <code>certificate_request_context</code> field of the <code>Certificate</code> message is empty.<a href="#section-6.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="message-ordering">
+<section id="section-6.4">
+        <h3 id="name-message-ordering">
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-message-ordering" class="section-name selfRef">Message Ordering</a>
+        </h3>
+<p id="section-6.4-1">Supplemental authentication sequences sent by an endpoint <span class="bcp14">MUST</span> form a contiguous sequence of TLS handshake messages.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+<p id="section-6.4-2">An endpoint <span class="bcp14">MUST NOT</span> interleave application data or other TLS messages with its supplemental authentication sequences.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
+<p id="section-6.4-3">If the <code>supplemental_certificate</code> TLS flag in a <code>Certificate</code> message indicates that another supplemental authentication sequence will follow, the <code>Finished</code> message completing that sequence <span class="bcp14">MUST</span> be followed by a <code>Certificate</code> message starting the next supplemental authentication sequence.<a href="#section-6.4-3" class="pilcrow">¶</a></p>
+<p id="section-6.4-4">If any other TLS message is received from that endpoint before the next <code>Certificate</code> message, the receiver <span class="bcp14">MUST</span> abort the connection with an <code>unexpected_message</code> alert.<a href="#section-6.4-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<div id="authentication-binding">
+<section id="section-7.1">
+        <h3 id="name-authentication-binding">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-authentication-binding" class="section-name selfRef">Authentication Binding</a>
+        </h3>
+<p id="section-7.1-1">Each supplemental authentication sequence includes a <code>CertificateVerify</code> and <code>Finished</code> message constructed using the TLS handshake transcript as described in <a href="#supplemental-authentication-flights" class="auto internal xref">Section 6</a>. This ensures that each supplemental certificate authentication statement is cryptographically bound to the TLS connection and cannot be replayed across connections.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1-2">Supplemental authentication sequences sent by one endpoint are not included in the transcript used by the peer when constructing its own supplemental authentication messages. As a result, supplemental authentication statements produced by each endpoint are independently bound to the TLS handshake transcript rather than to the peer's supplemental authentication statements.<a href="#section-7.1-2" class="pilcrow">¶</a></p>
+<p id="section-7.1-3">This design allows both endpoints to transmit supplemental authentication sequences without introducing additional round-trip latency. Applications that rely on relationships between multiple authentication statements from different endpoints <span class="bcp14">MUST</span> verify those relationships explicitly at the application layer.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="message-ordering-and-integrity">
+<section id="section-7.2">
+        <h3 id="name-message-ordering-and-integr">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-message-ordering-and-integr" class="section-name selfRef">Message Ordering and Integrity</a>
+        </h3>
+<p id="section-7.2-1">The <code>supplemental_certificate</code> TLS flag ensures that supplemental authentication sequences cannot be truncated or reordered without detection. If a <code>Certificate</code> message indicates that another supplemental authentication sequence will follow, the receiver expects the next message from that endpoint to begin the next sequence. Any deviation from this ordering results in a TLS protocol error.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">Because each supplemental authentication sequence includes a <code>Finished</code> message that covers the transcript defined in <a href="#supplemental-authentication-flights" class="auto internal xref">Section 6</a>, modification, removal, or reordering of messages within a sequence is detected by the TLS authentication mechanisms.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authorization-semantics">
+<section id="section-7.3">
+        <h3 id="name-authorization-semantics">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-authorization-semantics" class="section-name selfRef">Authorization Semantics</a>
+        </h3>
+<p id="section-7.3-1">TLS authentication establishes the identity of the peer but does not define how that identity is used for authorization. Supplemental authentication introduces additional authentication statements that may represent different identities or attributes (for example, device identity, user identity, or attestation evidence).<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.3-2">Applications using supplemental authentication <span class="bcp14">MUST</span> define how these authentication statements are interpreted and how multiple statements are combined when making authorization decisions. Incorrect or ambiguous interpretation of multiple authentication statements could lead to unintended authorization outcomes.<a href="#section-7.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="resource-consumption">
+<section id="section-7.4">
+        <h3 id="name-resource-consumption">
+<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-resource-consumption" class="section-name selfRef">Resource Consumption</a>
+        </h3>
+<p id="section-7.4-1">A peer can request supplemental authentication using the <code>supplemental_certificate_requests</code> extension. Responding to such requests may require the peer to construct certificate chains and produce signatures. Implementations <span class="bcp14">SHOULD</span> ensure that the processing of supplemental authentication requests is subject to appropriate resource limits and policy checks to prevent denial-of-service conditions.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
+<p id="section-7.4-2">The <code>max_certificates</code> field in <code>SupplementalCertificateRequest</code> limits the number of supplemental authentication sequences that may satisfy a given request. Implementations <span class="bcp14">MUST</span> enforce this limit.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="confidentiality-of-authentication-requests">
+<section id="section-7.5">
+        <h3 id="name-confidentiality-of-authenti">
+<a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-confidentiality-of-authenti" class="section-name selfRef">Confidentiality of Authentication Requests</a>
+        </h3>
+<p id="section-7.5-1">The <code>supplemental_certificate_requests</code> extension may reveal information about the types of authentication statements requested by an endpoint. When this extension appears in the <code>ClientHello</code>, its contents are visible to on-path observers unless the connection uses Encrypted ClientHello <span>[<a href="#ECH" class="cite xref">ECH</a>]</span>.<a href="#section-7.5-1" class="pilcrow">¶</a></p>
+<p id="section-7.5-2">Clients that wish to avoid revealing requested supplemental authentication contexts <span class="bcp14">SHOULD</span> use ECH so that the contents of the inner ClientHello are encrypted.<a href="#section-7.5-2" class="pilcrow">¶</a></p>
+<p id="section-7.5-3">A client <span class="bcp14">MAY</span> include an empty <code>supplemental_certificate_requests</code> extension in the outer ClientHello to indicate support for supplemental authentication while withholding the specific request parameters until the encrypted inner ClientHello is processed.<a href="#section-7.5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="session-resumption">
+<section id="section-7.6">
+        <h3 id="name-session-resumption">
+<a href="#section-7.6" class="section-number selfRef">7.6. </a><a href="#name-session-resumption" class="section-name selfRef">Session Resumption</a>
+        </h3>
+<p id="section-7.6-1">The <code>resumption_master_secret</code> is derived from <code>ClientHello...client Finished</code> per Section 7.1 of <span>[<a href="#TLS" class="cite xref">TLS</a>]</span> and does not include supplemental authentication messages. A server <span class="bcp14">MUST NOT</span> send a <code>NewSessionTicket</code> message until all supplemental authentication sequences from both endpoints have been completed. This ensures that a resumed session is not established before the supplemental authentication guarantees of the original session have been fully established.<a href="#section-7.6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-8">
+      <h2 id="name-iana-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="tls-extension">
+<section id="section-8.1">
+        <h3 id="name-tls-extension">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-tls-extension" class="section-name selfRef">TLS Extension</a>
+        </h3>
+<p id="section-8.1-1">IANA is requested to add the following entry to the "TLS ExtensionType Values" extension registry <span>[<a href="#TLS-Ext-Registry" class="cite xref">TLS-Ext-Registry</a>]</span>:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.1-2.1">
+            <p id="section-8.1-2.1.1">Value: TBD1<a href="#section-8.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.2">
+            <p id="section-8.1-2.2.1">Extension Name: supplemental_certificate_requests<a href="#section-8.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.3">
+            <p id="section-8.1-2.3.1">TLS 1.3: CH, CR<a href="#section-8.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.4">
+            <p id="section-8.1-2.4.1">DTLS-Only: N<a href="#section-8.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.5">
+            <p id="section-8.1-2.5.1">Recommended: Y<a href="#section-8.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.1-2.6">
+            <p id="section-8.1-2.6.1">Reference: [This document]<a href="#section-8.1-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="tls-flag">
+<section id="section-8.2">
+        <h3 id="name-tls-flag">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-tls-flag" class="section-name selfRef">TLS Flag</a>
+        </h3>
+<p id="section-8.2-1">ANA is requested to add the following entry to the "TLS Flags" extension registry <span>[<a href="#TLS-Ext-Registry" class="cite xref">TLS-Ext-Registry</a>]</span>:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-8.2-2.1">
+            <p id="section-8.2-2.1.1">Value: TBD2<a href="#section-8.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.2">
+            <p id="section-8.2-2.2.1">Flag Name: supplemental_certificate<a href="#section-8.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.3">
+            <p id="section-8.2-2.3.1">Messages: CT<a href="#section-8.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.4">
+            <p id="section-8.2-2.4.1">Recommended: Y<a href="#section-8.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.5">
+            <p id="section-8.2-2.5.1">Reference: [This document]<a href="#section-8.2-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-9">
+      <h2 id="name-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-9.1">
+        <h3 id="name-normative-references">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TLS">[TLS]</dt>
+        <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-rfc8446bis-14</span>, <time datetime="2025-09-13" class="refDate">13 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14">https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TLS-FLAGS">[TLS-FLAGS]</dt>
+      <dd>
+<span class="refAuthor">Nir, Y.</span>, <span class="refTitle">"A Flags Extension for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-tlsflags-17</span>, <time datetime="2026-03-17" class="refDate">17 March 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-tlsflags-17">https://datatracker.ietf.org/doc/html/draft-ietf-tls-tlsflags-17</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-9.2">
+        <h3 id="name-informative-references">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="DTLS">[DTLS]</dt>
+        <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Tschofenig, H.</span>, and <span class="refAuthor">N. Modadugu</span>, <span class="refTitle">"The Datagram Transport Layer Security (DTLS) Protocol Version 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-rfc9147bis-01</span>, <time datetime="2025-10-20" class="refDate">20 October 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc9147bis-01">https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc9147bis-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ECH">[ECH]</dt>
+        <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Oku, K.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"TLS Encrypted Client Hello"</span>, <span class="seriesInfo">RFC 9849</span>, <span class="seriesInfo">DOI 10.17487/RFC9849</span>, <time datetime="2026-03" class="refDate">March 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9849">https://www.rfc-editor.org/rfc/rfc9849</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="H2">[H2]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">C. Benfield, Ed.</span>, <span class="refTitle">"HTTP/2"</span>, <span class="seriesInfo">RFC 9113</span>, <span class="seriesInfo">DOI 10.17487/RFC9113</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9113">https://www.rfc-editor.org/rfc/rfc9113</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-TLS">[QUIC-TLS]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">S. Turner, Ed.</span>, <span class="refTitle">"Using TLS to Secure QUIC"</span>, <span class="seriesInfo">RFC 9001</span>, <span class="seriesInfo">DOI 10.17487/RFC9001</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9001">https://www.rfc-editor.org/rfc/rfc9001</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TLS-Ext-Registry">[TLS-Ext-Registry]</dt>
+      <dd>
+<span class="refAuthor">IANA</span>, <span class="refTitle">"Transport Layer Security (TLS) Extensions"</span>, <time datetime="2026-03" class="refDate">March 2026</time>, <span>&lt;<a href="https://www.iana.org/assignments/tls-extensiontype-values">https://www.iana.org/assignments/tls-extensiontype-values</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+    </h2>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Yaroslav Rosomakho</span></div>
+<div dir="auto" class="left"><span class="org">Zscaler</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:yrosomakho@zscaler.com" class="email">yrosomakho@zscaler.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Tirumaleswar Reddy</span></div>
+<div dir="auto" class="left"><span class="org">Nokia</span></div>
+<div dir="auto" class="left">
+<span class="locality">Bangalore</span> </div>
+<div dir="auto" class="left"><span class="region">Karnataka</span></div>
+<div dir="auto" class="left"><span class="country-name">India</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:k.tirumaleswar_reddy@nokia.com" class="email">k.tirumaleswar_reddy@nokia.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Rifaat Shekh-Yusef</span></div>
+<div dir="auto" class="left"><span class="org">Ciena</span></div>
+<div dir="auto" class="left"><span class="country-name">Canada</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:rifaat.s.ietf@gmail.com" class="email">rifaat.s.ietf@gmail.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Hannes Tschofenig</span></div>
+<div dir="auto" class="left"><span class="org">University of the Bundeswehr Munich</span></div>
+<div dir="auto" class="left"><span class="country-name">Germany</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:hannes.tschofenig@gmx.net" class="email">hannes.tschofenig@gmx.net</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
