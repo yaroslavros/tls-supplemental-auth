@@ -62,8 +62,7 @@ after the handshake and before the sender transmits application data.
 
 Supplemental authentication extends the existing TLS certificate authentication mechanism. It does not replace primary certificate authentication performed during the handshake and does not change the semantics of TLS authentication or authorization decisions, which remain application-specific.
 
-The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-D.ietf-tls-rfc9147bis}}.
-Use with protocols that incorporate the TLS 1.3 handshake but do not carry TLS handshake messages in the TLS or DTLS record layer, such as QUIC {{?QUIC-TLS=RFC9001}}, requires a separate protocol mapping and is out of scope for this document.
+The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-D.ietf-tls-rfc9147bis}} and protocols that use the TLS 1.3 handshake such as QUIC {{QUIC-TLS}}.
 
 # Conventions and Definitions
 
@@ -86,7 +85,7 @@ Finished
 ~~~
 {: #fig-tls-auth-messages title="TLS 1.3 authentication message sequence"}
 
-These messages are processed using the same cryptographic mechanisms defined for certificate authentication in TLS 1.3. Supplemental authentication flights are sent after the TLS handshake has completed and are protected using the established connection keys.
+These messages are processed using the same cryptographic mechanisms defined for certificate authentication in TLS 1.3. Supplemental authentication flights are sent after the handshake `Finished` message and are protected using the established connection keys.
 
 Multiple supplemental authentication flights may be sent by a single endpoint. If the `supplemental_certificate` flag is present in a supplemental `Certificate` message, it indicates that another supplemental authentication flight will follow. If the flag is absent, the `Certificate` message is the final supplemental authentication flight sent by that endpoint.
 
@@ -100,7 +99,7 @@ The following sections illustrate typical message flows.
 
 ## Server Supplemental Authentication Example
 
-In this example, the client requests additional authentication statements from the server using the `supplemental_certificate_requests` extension in the `ClientHello`. The server indicates acceptance in its handshake `Certificate` message. After the client completes the handshake by sending its `Finished` message, the server sends two supplemental authentication flights.
+In this example, the client requests additional authentication statements from the server using the `supplemental_certificate_requests` extension in the `ClientHello`. The server indicates acceptance in its handshake `Certificate` message and sends two supplemental authentication flights after the handshake.
 
 ~~~aasvg
 Client                                           Server
@@ -115,9 +114,6 @@ ClientHello
                                                + supplemental_certificate
                                              CertificateVerify
                                              Finished
-                       <--------
-Finished
-                       -------->
                                              Certificate
                                                + supplemental_certificate
                                              CertificateVerify
@@ -150,14 +146,13 @@ ClientHello
                                              Finished
                        <--------
 Certificate
+ + supplemental_certificate
 CertificateVerify
 Finished
-
 Certificate
  + supplemental_certificate
 CertificateVerify
 Finished
-
 Certificate
 CertificateVerify
 Finished
@@ -279,7 +274,7 @@ For each supplemental authentication sequence, the sender-local supplemental tra
 
 The `CertificateVerify` message is constructed using the same procedure and context string defined for certificate authentication in TLS 1.3 {{TLS}}. A server uses the server `CertificateVerify` context string, and a client uses the client `CertificateVerify` context string.
 
-The `Finished` message is constructed using the same procedure as `Finished` in TLS 1.3, except that the transcript hash is taken over the sender-local supplemental transcript defined above. The Base Key is the sender's current application traffic secret, namely `server_application_traffic_secret_N` for a server and `client_application_traffic_secret_N` for a client, where `N` identifies the application traffic secret generation used to protect that `Finished` message.
+The `Finished` message is constructed using the same procedure as `Finished` in TLS 1.3, except that the transcript hash is taken over the sender-local supplemental transcript defined above. The Base Key is the sender's current application traffic secret, namely `server_application_traffic_secret_0` for a server and `client_application_traffic_secret_0` for a client.
 
 An endpoint MUST NOT change its sending application traffic keys in the middle of a supplemental authentication sequence. If an endpoint sends more than one supplemental authentication sequence, it MAY update its sending application traffic keys between sequences.
 
