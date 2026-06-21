@@ -115,7 +115,7 @@ Supplemental authentication flights from a given sender MUST form a contiguous s
 
 Each supplemental authentication flight satisfies at most one `SupplementalCertificateRequest`. A sender MAY transmit multiple supplemental authentication flights that satisfy the same request, provided that the number of flights does not exceed the `max_certificates` value specified in the corresponding request.
 
-Supplemental authentication flights for different request contexts MAY appear in any order. The receiver determines which `SupplementalCertificateRequest`, if any, a supplemental authentication flight satisfies based on the `certificate_request_context` value.
+Supplemental authentication flights for different request contexts MAY appear in any order. The receiver determines which `SupplementalCertificateRequest` a supplemental authentication flight satisfies based on the `certificate_request_context` value.
 
 The following sections illustrate typical message flows.
 
