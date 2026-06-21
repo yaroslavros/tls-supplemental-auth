@@ -28,6 +28,24 @@ author:
     fullname: Yaroslav Rosomakho
     organization: Zscaler
     email: yrosomakho@zscaler.com
+ -
+    fullname: Tirumaleswar Reddy
+    organization: Nokia
+    city: Bangalore
+    region: Karnataka
+    country: India
+    email: "k.tirumaleswar_reddy@nokia.com"
+ -
+    fullname: Rifaat Shekh-Yusef
+    organization: Ciena
+    country: Canada
+    email: rifaat.s.ietf@gmail.com
+ -
+    fullname: Hannes Tschofenig
+    organization: University of the Bundeswehr Munich
+    abbrev: UniBw M.
+    country: Germany
+    email: hannes.tschofenig@gmx.net
 
 normative:
 
@@ -68,9 +86,13 @@ The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-
 
 {::boilerplate bcp14-tagged}
 
-# Overview of Supplemental Authentication
+# Overview of Supplemental Authentication
 
-Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection. These additional authentication statements are exchanged immediately after the TLS handshake and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.
+Supplemental authentication allows endpoints to present additional certificate-based authentication statements associated with an established TLS connection.
+
+A fundamental concept of this specification is the clear separation between the "Main Handshake" and the "Supplemental Authentication phase". The Main Handshake is considered complete upon the successful processing of the initial Finished messages by both endpoints, at which point a secure connection is established and application traffic keys are available.
+
+These additional authentication statements are exchanged immediately after the TLS main handshake, but before application data is exchanged, and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.
 
 Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the `supplemental_certificate_requests` extension. This extension can appear in the `ClientHello` or `CertificateRequest` messages and contains `SupplementalCertificateRequest` structures that describe the requested authentication contexts and associated parameters.
 
@@ -177,14 +199,14 @@ The extension structure is defined as follows:
 
 ~~~
 struct {
-  SupplementalCertificateRequest requests<0..2^16-1>;
-} SupplementalCertificateRequests;
-
-struct {
   uint8 max_certificates;
   opaque certificate_request_context<0..255>;
   Extension extensions<2..2^16-1>;
 } SupplementalCertificateRequest;
+
+struct {
+  SupplementalCertificateRequest requests<0..2^16-1>;
+} SupplementalCertificateRequests;
 ~~~
 {: #fig-supplemental-certificate-requests title="supplemental_certificate_requests Extension Structure"}
 
@@ -218,6 +240,28 @@ When the `supplemental_certificate_requests` extension appears in the `ClientHel
 A peer receiving the `supplemental_certificate_requests` extension MAY respond to zero or more of the contained `SupplementalCertificateRequest` structures. For a given request, the peer MAY send between zero and `max_certificates` supplemental authentication flights.
 
 If a peer sends a supplemental authentication flight in response to a request, the `certificate_request_context` field of the `Certificate` message MUST be equal to the `certificate_request_context` value of the corresponding `SupplementalCertificateRequest`.
+
+The following is an example of SupplementalCertificateRequests:
+~~~
+SupplementalCertificateRequests {
+  requests = [
+    // Request for the Device Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "device-identity",
+      extensions = { device cert specific extensions ... }
+    },
+
+    // Request for the User Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "user-identity",
+      extensions = { user cert specific extensions ... }
+    }
+  ]
+}
+~~~
+
 
 # The supplemental_certificate TLS flag
 
@@ -270,11 +314,46 @@ The sender-local supplemental transcript does not include post-handshake message
 For each supplemental authentication sequence, the sender-local supplemental transcript additionally includes:
 
 * all messages from any preceding supplemental authentication sequences sent by this endpoint, and
-* the `Certificate` message of the current supplemental authentication sequence.
+* the `Certificate`, `CertificateVerify` and `Finished` message of the current supplemental authentication sequence.
 
 The `CertificateVerify` message is constructed using the same procedure and context string defined for certificate authentication in TLS 1.3 {{TLS}}. A server uses the server `CertificateVerify` context string, and a client uses the client `CertificateVerify` context string.
 
+~~~
+CertificateVerify: A signature over the value
+   Transcript-Hash(Handshake Context, Certificate).
+~~~
+
 The `Finished` message is constructed using the same procedure as `Finished` in TLS 1.3, except that the transcript hash is taken over the sender-local supplemental transcript defined above. The Base Key is the sender's current application traffic secret, namely `server_application_traffic_secret_0` for a server and `client_application_traffic_secret_0` for a client.
+
+~~~
+Finished: A MAC over the value Transcript-Hash(Handshake Context,
+   Certificate, CertificateVerify) using a MAC key derived from the
+   Base Key.
+~~~
+
+Handshake Context and Base Key are specified in the following table:
+
+~~~
++--------------+-----------------------------+--------------------------------+
+| Mode         | Handshake Context           | Base Key                       |
++--------------+-----------------------------+--------------------------------+
+| Server       | ClientHello ... server      | server_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent server      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
+|              |                             |                                |
+| Client       | ClientHello ... client      | client_application_traffic_    |
+| Supplemental | Finished +                  | secret_N                       |
+|              | all messages from           |                                |
+|              | previously sent client      |                                |
+|              | supplemental authentication |                                |
+|              | sequences                   |                                |
++--------------+-----------------------------+--------------------------------+
+~~~
+
+After a supplemental authentication sequence is sent, its `Certificate`, `CertificateVerify`, and `Finished` messages are appended to the sender's Handshake Context, so that each subsequent sequence is bound to all previously transmitted sequences from that sender. Endpoints performing supplemental authentication MUST retain the transcript hash state at the end of the handshake and update it with each supplemental authentication message sent, until all supplemental authentication sequences have been transmitted.
 
 An endpoint MUST NOT change its sending application traffic keys in the middle of a supplemental authentication sequence. If an endpoint sends more than one supplemental authentication sequence, it MAY update its sending application traffic keys between sequences.
 
@@ -290,7 +369,7 @@ A sender MAY transmit multiple supplemental authentication sequences that satisf
 
 A sender MAY also transmit supplemental authentication sequences that are not associated with any specific request context, in which case the `certificate_request_context` field of the `Certificate` message is empty.
 
-## Message Ordering
+## Message Ordering
 
 Supplemental authentication sequences sent by an endpoint MUST form a contiguous sequence of TLS handshake messages from that endpoint.
 
@@ -338,6 +417,10 @@ Clients that wish to avoid revealing requested supplemental authentication conte
 
 A client MAY include an empty `supplemental_certificate_requests` extension in the outer ClientHello to indicate support for supplemental authentication while withholding the specific request parameters until the encrypted inner ClientHello is processed.
 
+## Session Resumption
+
+The `resumption_master_secret` is derived from `ClientHello...client Finished` per Section 7.1 of {{TLS}} and does not include supplemental authentication messages. A server MUST NOT send a `NewSessionTicket` message until all supplemental authentication sequences from both endpoints have been completed. This ensures that a resumed session is not established before the supplemental authentication guarantees of the original session have been fully established.
+
 # IANA Considerations
 
 ## TLS Extension
@@ -365,5 +448,3 @@ IANA is requested to add the following entry to the "TLS Flags" registry created
 
 # Acknowledgments
 {:numbered="false"}
-
-TODO acknowledge.
