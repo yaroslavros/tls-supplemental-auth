@@ -379,15 +379,9 @@ Finished
    If an extension is not present in the extensions list of a
    SupplementalCertificateRequest, the parameters for that extension are
    inherited from the corresponding values negotiated in the main
-   handshake.
-
-   Unlike the TLS 1.3 ClientHello and CertificateRequest messages, the
-   signature_algorithms extension is OPTIONAL in a
-   SupplementalCertificateRequest.  If the signature_algorithms
-   extension is not present in the extensions list of a
-   SupplementalCertificateRequest, the permitted signature algorithms
-   are inherited from the corresponding message in the main handshake,
-   as described below.
+   handshake.  Unlike the TLS 1.3 ClientHello and CertificateRequest
+   messages, the signature_algorithms extension is OPTIONAL in a
+   SupplementalCertificateRequest.
 
    When the supplemental_certificate_requests extension appears in the
    ClientHello, the inherited values are taken from the client's
