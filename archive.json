@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-09T02:14:38.746995+00:00",
+  "timestamp": "2026-06-23T02:29:55.381065+00:00",
   "repo": "yaroslavros/tls-supplemental-auth",
   "labels": [
     {
@@ -142,7 +142,7 @@
       "labels": [],
       "body": "We should clarify whether KeyUpdate, EKU, and post-handshake client authentication messages can interleave with supplemental authentication sequences, and whether any ordering restrictions are required.",
       "createdAt": "2026-03-09T06:33:08Z",
-      "updatedAt": "2026-04-08T06:21:03Z",
+      "updatedAt": "2026-06-21T15:52:24Z",
       "closedAt": null,
       "comments": [
         {
@@ -172,6 +172,13 @@
           "body": "I am referring to cross-flight where one side sends supplemental certificates and the other side sends EKU. It would be applicable to other TLS messages like post-handshake client authentication and key update. ",
           "createdAt": "2026-04-08T06:21:03Z",
           "updatedAt": "2026-04-08T06:21:03Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "A peer sending KeyUpdate or EKU does not change anything until it is acknowledged/responded to.",
+          "createdAt": "2026-06-21T15:52:24Z",
+          "updatedAt": "2026-06-21T15:52:24Z"
         }
       ]
     },
@@ -211,7 +218,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-03-09T06:41:46Z",
-      "updatedAt": "2026-05-26T21:39:28Z",
+      "updatedAt": "2026-06-21T15:53:10Z",
       "closedAt": null,
       "comments": [
         {
@@ -234,6 +241,13 @@
           "body": "After thinking more about this, I suggest to explicitly allow empty `supplemental_certificate_request` which would imply that `signature_algorithms` are inherited from either `ClientHello` or `CertificateRequest`.\n\nI'll craft a PR in upcoming days.",
           "createdAt": "2026-05-26T21:39:28Z",
           "updatedAt": "2026-05-26T21:39:28Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Should be addressed in https://github.com/yaroslavros/tls-supplemental-auth/pull/37",
+          "createdAt": "2026-06-21T15:53:10Z",
+          "updatedAt": "2026-06-21T15:53:10Z"
         }
       ]
     },
@@ -483,9 +497,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> Section 6.2 excludes peer supplemental authentication messages from each\nendpoint's Handshake Context so that both sides can send concurrently.\nIs there precedent for this in TLS 1.3? The asymmetry feels risky and\ndeserves explicit justification.",
       "createdAt": "2026-06-08T13:55:06Z",
-      "updatedAt": "2026-06-08T13:55:06Z",
+      "updatedAt": "2026-06-21T15:50:08Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf yes, such precedent exists in TLS 1.3 key schedule. application traffic secrets and main secret only use ClientHello..*server* Finished, while resumption main secret uses ClientHello..*client* Finished.\nWithout this asymmetry this mechanism will incur at least one additional RTT. This may be a necessary sacrifice for the security, but I'd rather do that only under FATT guidance (if we get to that)",
+          "createdAt": "2026-06-21T15:50:08Z",
+          "updatedAt": "2026-06-21T15:50:08Z"
+        }
+      ]
     },
     {
       "number": 20,
@@ -499,9 +521,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> Section 1 spends only one paragraph on use cases. More is needed to\nconvince the WG of the need for this mechanism, including why\ndeployments that already address these scenarios (even imperfectly) \u2014\nfor example via post-handshake authentication or application-layer\ncredentials \u2014 warrant a new TLS extension.",
       "createdAt": "2026-06-08T13:55:32Z",
-      "updatedAt": "2026-06-08T13:55:32Z",
+      "updatedAt": "2026-06-21T15:50:40Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf, I agree. Let's keep this open for now.",
+          "createdAt": "2026-06-21T15:50:40Z",
+          "updatedAt": "2026-06-21T15:50:40Z"
+        }
+      ]
     },
     {
       "number": 21,
@@ -563,9 +593,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> Several aspects of the draft may not carry over cleanly to DTLS:\n> \n> - Section 3 states that an endpoint MUST NOT interleave application data\n> or other TLS messages with supplemental authentication flights. DTLS ACK\n> records should probably be carved out as an exception.\n> - Requiring contiguous supplemental authentication flights and enforcing\n> ordering via `unexpected_message` may be insufficient when datagrams\n> arrive out of order. Section 7.2 may need additional mechanisms to\n> ensure reordering does not break the protocol.\n> - Section 7.6 requires that `NewSessionTicket` not be sent until all\n> supplemental authentication sequences from both endpoints have\n> completed. Please verify that this ordering constraint holds when both\n> peers send supplemental flights concurrently over DTLS.",
       "createdAt": "2026-06-08T13:57:17Z",
-      "updatedAt": "2026-06-08T13:57:17Z",
+      "updatedAt": "2026-06-21T15:24:24Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf, indeed, DTLS considerations need a bit of work.\nAlso https://github.com/yaroslavros/tls-supplemental-auth/issues/8",
+          "createdAt": "2026-06-21T15:24:24Z",
+          "updatedAt": "2026-06-21T15:24:24Z"
+        }
+      ]
     },
     {
       "number": 25,
@@ -579,9 +617,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> Why complicate the state machine with multiple supplemental\nauthentication flights instead of allowing a single `Certificate`\nmessage to carry multiple certificates? The design tradeoff should be\nexplained.",
       "createdAt": "2026-06-08T13:57:48Z",
-      "updatedAt": "2026-06-08T13:57:48Z",
+      "updatedAt": "2026-06-21T15:23:21Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "`Certificate`/`CertificateVerify`/`Finished` sequence is well studied. Diverging from it is unlikely to add much value but carries significant security risks.\n\nLet's keep this issue open for now.",
+          "createdAt": "2026-06-21T15:23:21Z",
+          "updatedAt": "2026-06-21T15:23:21Z"
+        }
+      ]
     },
     {
       "number": 26,
@@ -611,9 +657,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> \"Protected using the established connection keys\" is underspecified.\nPlease align the overview with Section 5.1 and clarify whether keys are\nre-established after each supplemental `Finished` message.",
       "createdAt": "2026-06-08T13:58:35Z",
-      "updatedAt": "2026-06-08T13:58:35Z",
+      "updatedAt": "2026-06-21T15:19:37Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf please check if https://github.com/yaroslavros/tls-supplemental-auth/pull/15 good enough",
+          "createdAt": "2026-06-21T15:19:37Z",
+          "updatedAt": "2026-06-21T15:19:37Z"
+        }
+      ]
     },
     {
       "number": 28,
@@ -627,9 +681,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> What is the syntax or signaling when a peer sends no supplemental\nauthentication flights in response to a\n`SupplementalCertificateRequest`? The draft should state the expected\nbehavior explicitly.",
       "createdAt": "2026-06-08T13:58:58Z",
-      "updatedAt": "2026-06-08T13:58:58Z",
+      "updatedAt": "2026-06-21T15:18:42Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf `Certificate` message in the handshake without `supplemental_certificate` flag implies that there will be no supplemental flights. Do you think it needs to be spelled out better?",
+          "createdAt": "2026-06-21T15:18:42Z",
+          "updatedAt": "2026-06-21T15:18:42Z"
+        }
+      ]
     },
     {
       "number": 29,
@@ -643,9 +705,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> How does the server know to request supplemental authentication in\n`CertificateRequest` \u2014 specifically, how does it know the client will\npresent a main handshake certificate?",
       "createdAt": "2026-06-08T13:59:17Z",
-      "updatedAt": "2026-06-08T13:59:17Z",
+      "updatedAt": "2026-06-21T15:17:18Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf not sure if I understand the question. `CertificateRequest` requires a client to send a `Certificate` message. Client cannot provide supplemental certificates if it did not provide a main handshake certificate.",
+          "createdAt": "2026-06-21T15:17:18Z",
+          "updatedAt": "2026-06-21T15:17:18Z"
+        }
+      ]
     },
     {
       "number": 30,
@@ -659,9 +729,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> Are there concrete use cases for `max_certificates` > 1 within a single\n`certificate_request_context`? On a related note, why define both\n`max_certificates` and multiple `SupplementalCertificateRequest`\nstructures as ways to request multiple certificates?",
       "createdAt": "2026-06-08T13:59:38Z",
-      "updatedAt": "2026-06-08T13:59:38Z",
+      "updatedAt": "2026-06-21T15:13:39Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf, there could be unknown to the peer number of relevant identities.\n\nFor example, a VDI farm client connecting to a server may want to signal certificates associated with all the logged on users. The server does not know how many users there are, so it does not know how many `certificate_request_context` to generate. `max_certificates` allows the flexibility and also offers a way to signal a limit.\n\nI'm happy to keep this issue open for now.",
+          "createdAt": "2026-06-21T15:13:39Z",
+          "updatedAt": "2026-06-21T15:13:39Z"
+        }
+      ]
     },
     {
       "number": 31,
@@ -684,16 +762,45 @@
       "id": "I_kwDORhrY5M8AAAABEv0ASA",
       "title": "Redundant flag vs extension",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/32",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "yaroslavros",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "From @yaronf review:\n\n> It is unclear why both the `supplemental_certificate_requests` extension\nand the `supplemental_certificate` flag are needed to signal support for\nthis mechanism. If both are required, the text should clarify their\ndistinct roles.",
       "createdAt": "2026-06-08T14:00:26Z",
-      "updatedAt": "2026-06-08T14:00:26Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-06-22T09:51:06Z",
+      "closedAt": "2026-06-22T09:51:06Z",
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "`supplemental_certificate_requests` signals support for the mechanism and optionally provides request context similarly to `CertificateRequest` and relevant extensions in `ClientHello`. `supplemental_certificate` flag indicates that at least one additional supplemental certificate flight comes after the corresponding `Certificate`/`CertificateVerify`/`Finished`.\n`supplemental_certificate` flag and the supplemental certificate flights must not be included if the peer did not include `supplemental_certificate_requests` extension previously.\n\n@yaronf, do you think this needs to be spelled out better in the draft text?",
+          "createdAt": "2026-06-21T15:02:51Z",
+          "updatedAt": "2026-06-21T15:02:51Z"
+        },
+        {
+          "author": "yaronf",
+          "authorAssociation": "NONE",
+          "body": "Re: your last sentence, IIRC, flags can only appear in CH/SH, so they are sent *before* the extension. \n\nI agree both flag and extension are needed for the state machine not to break. It would be nice to clarify though, because many TLS-extending drafts make do with only extensions (and you could, too, if you used an empty CH/SH extension instead of the flag).",
+          "createdAt": "2026-06-22T09:26:18Z",
+          "updatedAt": "2026-06-22T09:26:18Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Flags can be used in any TLS message that takes extensions - including `Certificate`. Check `tls_flags` in https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml ",
+          "createdAt": "2026-06-22T09:35:59Z",
+          "updatedAt": "2026-06-22T09:35:59Z"
+        },
+        {
+          "author": "yaronf",
+          "authorAssociation": "NONE",
+          "body": "correct, sorry.",
+          "createdAt": "2026-06-22T09:49:47Z",
+          "updatedAt": "2026-06-22T09:49:47Z"
+        }
+      ]
     },
     {
       "number": 33,
@@ -707,9 +814,17 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> The transcript table references `server_application_traffic_secret_N` /\n`client_application_traffic_secret_N`. Does the `_N` suffix imply\nrekeying that is never specified, or is this simply the current\napplication traffic secret (including after a normal `KeyUpdate`)?",
       "createdAt": "2026-06-08T14:02:03Z",
-      "updatedAt": "2026-06-08T14:02:03Z",
+      "updatedAt": "2026-06-21T15:03:13Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf, I've updated to explicit _0 in https://github.com/yaroslavros/tls-supplemental-auth/pull/15. KeyUpdate/EKU is not allowed until supplemental authentication flights are complete.",
+          "createdAt": "2026-06-21T14:59:57Z",
+          "updatedAt": "2026-06-21T15:03:13Z"
+        }
+      ]
     },
     {
       "number": 34,
@@ -723,25 +838,76 @@
       "labels": [],
       "body": "From @yaronf review:\n\n> Section 7.2 attributes sequence integrity to the\n`supplemental_certificate` flag, but the extension also appears to\nparticipate in the same guarantees (that sequences cannot be truncated\nor reordered). Please clarify what each mechanism contributes.",
       "createdAt": "2026-06-08T14:02:18Z",
-      "updatedAt": "2026-06-08T14:02:18Z",
+      "updatedAt": "2026-06-22T09:37:08Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf not sure if I follow. What extension are you referring to?\nPlease take a look at https://github.com/yaroslavros/tls-supplemental-auth/pull/15 which tightens up extension/flag terminology. Does that resolve your concern?",
+          "createdAt": "2026-06-21T14:58:46Z",
+          "updatedAt": "2026-06-21T14:58:46Z"
+        },
+        {
+          "author": "yaronf",
+          "authorAssociation": "NONE",
+          "body": "Now I'm confused: even with #15, the IANA section defines both an extension and a flag.",
+          "createdAt": "2026-06-22T09:11:24Z",
+          "updatedAt": "2026-06-22T09:11:24Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "There is `supplemental_certificate_requests` extension defined in Section 4. It can be included in `ClientHello` and/or `CertificateRequest`. It indicates support for receiving supplemental certificates and, optionally, includes list of extensions/contexts similarly to CertificateRequest message.\n\nThere is `supplemental_certificate` TLS flag defined in Section 5. It can be included in `Certificate`. It indicates that there will be at least one more supplemental authentication flight.\n\nI was hoping that introduction, examples and the rest of the draft text are clear enough... if not, anything you could suggest to improve the clarity?",
+          "createdAt": "2026-06-22T09:21:52Z",
+          "updatedAt": "2026-06-22T09:21:52Z"
+        },
+        {
+          "author": "yaronf",
+          "authorAssociation": "NONE",
+          "body": "This comment was specifically about this text:\n\n> The supplemental_certificate TLS flag ensures that supplemental authentication sequences cannot be truncated or reordered without detection. If a Certificate message indicates that another supplemental authentication sequence will follow, the receiver expects the next message from that endpoint to begin the next sequence. Any deviation from this ordering results in a TLS protocol error.\n\nI would have written it differently (I don't like the notion that the flag \"ensures\" state machine behavior). But it's not very important.",
+          "createdAt": "2026-06-22T09:32:13Z",
+          "updatedAt": "2026-06-22T09:32:13Z"
+        },
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "Good point. I'll take a stab at it once we get through the current flurry of PRs",
+          "createdAt": "2026-06-22T09:37:08Z",
+          "updatedAt": "2026-06-22T09:37:08Z"
+        }
+      ]
     },
     {
       "number": 35,
       "id": "I_kwDORhrY5M8AAAABEv1_lw",
       "title": "Reject unreasonably high max_certificates",
       "url": "https://github.com/yaroslavros/tls-supplemental-auth/issues/35",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "yaroslavros",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "From @yaronf review:\n\n> Implementations MAY wish to reject unreasonably high values of\n`max_certificates` as a denial-of-service mitigation. Consider adding\nexplicit guidance.",
       "createdAt": "2026-06-08T14:04:30Z",
-      "updatedAt": "2026-06-08T14:04:30Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-06-21T16:47:17Z",
+      "closedAt": "2026-06-21T16:47:17Z",
+      "comments": [
+        {
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "body": "@yaronf I'm not sure if I understand why would one want to reject high advertised value of `max_certificates`. This parameter is used to advertise how many supplemental certificate chains does the endpoint is ready to accept. If a client speaks to a server and server says - `max_certificates = 100` which means \"feel free to send me up to 100 certificate chains\" - it is not a threat to the client in any way. It is still free to send just one (or none).",
+          "createdAt": "2026-06-21T14:56:55Z",
+          "updatedAt": "2026-06-21T14:56:55Z"
+        },
+        {
+          "author": "yaronf",
+          "authorAssociation": "NONE",
+          "body": "Agreed, my bad.",
+          "createdAt": "2026-06-21T15:55:56Z",
+          "updatedAt": "2026-06-21T15:55:56Z"
+        }
+      ]
     },
     {
       "number": 36,
@@ -835,13 +1001,13 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-04-01T09:33:34Z",
-      "updatedAt": "2026-05-15T21:14:03Z",
+      "updatedAt": "2026-06-22T08:52:37Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
-      "baseRefOid": "588e9c825564ec4638e4db04f3b82960633b0a80",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
       "headRepository": "hannestschofenig/tls-supplemental-auth",
       "headRefName": "review",
-      "headRefOid": "a1690052a7a013619622e24f9d2d185f6d2ded3d",
+      "headRefOid": "c8c3dab8319c63a1036f3e9cadd81f9c3100fa4c",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -1020,6 +1186,32 @@
               "body": "I was thinking about requiring signature_algorithms extension similarly to TLS 1.3 CertificateRequest and did not write that down...\nWhat do you think?",
               "createdAt": "2026-04-12T22:32:54Z",
               "updatedAt": "2026-04-12T22:32:54Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDr68lw",
+          "commit": {
+            "abbreviatedOid": "c8c3dab"
+          },
+          "author": "yaronf",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "Overall looks good, see comments.",
+          "createdAt": "2026-06-22T08:30:39Z",
+          "updatedAt": "2026-06-22T08:52:37Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "\"sender local\" is ambiguous, it can denote:\n\n- Only messages sent by this peer\n- Or simply maintained/managed by this peer.",
+              "createdAt": "2026-06-22T08:30:39Z",
+              "updatedAt": "2026-06-22T08:52:37Z"
+            },
+            {
+              "originalPosition": 75,
+              "body": "Wouldn't it be clearer if you had a different name for the context? \"Supp Handshake Context\"?",
+              "createdAt": "2026-06-22T08:38:11Z",
+              "updatedAt": "2026-06-22T08:52:37Z"
             }
           ]
         }
@@ -1407,7 +1599,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-06-05T16:58:46Z",
-      "updatedAt": "2026-06-05T16:58:47Z",
+      "updatedAt": "2026-06-21T12:36:51Z",
       "baseRepository": "yaroslavros/tls-supplemental-auth",
       "baseRefName": "main",
       "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
@@ -1419,7 +1611,355 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDpZZLw",
+          "commit": {
+            "abbreviatedOid": "8154c68"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Looks good. Any chance you could also add:\n- attestation use case\n- hardware-backed classical certificate combined with software-backed PQ certificate use case\n- client requesting multiple origins from the server (aka multiple domains hosted on the same CDN that resolve to the same destination)",
+          "createdAt": "2026-06-21T12:36:51Z",
+          "updatedAt": "2026-06-21T12:36:51Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "id": "PR_kwDORhrY5M7o4JV2",
+      "title": "Clarified signature_algorithms extension",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/37",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-06-21T14:50:26Z",
+      "updatedAt": "2026-06-22T09:52:30Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "empty-extensions",
+      "headRefOid": "c01ec48efef2d80ce4eb564f2b4d1f155672024e",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDrcn-Q",
+          "commit": {
+            "abbreviatedOid": "6955176"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-22T07:12:54Z",
+          "updatedAt": "2026-06-22T07:12:57Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "The preceding paragraph has overlapping text with this new paragraph, you may want to merge them as follows.\n\n If an extension is not present in the extensions list of a SupplementalCertificateRequest, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake. Unlike the TLS 1.3 ClientHello and CertificateRequest messages, the signature_algorithms extension is OPTIONAL in a SupplementalCertificateRequest; if absent, the permitted signature algorithms are inherited as described below.\n\n\n\n\n\n",
+              "createdAt": "2026-06-22T07:12:54Z",
+              "updatedAt": "2026-06-22T07:12:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDsVGLA",
+          "commit": {
+            "abbreviatedOid": "6955176"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-22T09:32:59Z",
+          "updatedAt": "2026-06-22T09:32:59Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "Conciseness is good. Please check updated PR.",
+              "createdAt": "2026-06-22T09:32:59Z",
+              "updatedAt": "2026-06-22T09:32:59Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "id": "PR_kwDORhrY5M7o4LYA",
+      "title": "Added missing newlines",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/38",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Addresses https://github.com/yaroslavros/tls-supplemental-auth/issues/36",
+      "createdAt": "2026-06-21T14:54:02Z",
+      "updatedAt": "2026-06-22T07:13:50Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "missing-newline",
+      "headRefOid": "d3a5126d3163104c1d328a88e5d50d13925b2b09",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDrc-JA",
+          "commit": {
+            "abbreviatedOid": "d3a5126"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-06-22T07:13:50Z",
+          "updatedAt": "2026-06-22T07:13:50Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 39,
+      "id": "PR_kwDORhrY5M7o4Uvr",
+      "title": "Clarified server_name extension",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/39",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "To address https://github.com/yaroslavros/tls-supplemental-auth/issues/31",
+      "createdAt": "2026-06-21T15:10:55Z",
+      "updatedAt": "2026-06-22T09:28:52Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "server-name",
+      "headRefOid": "b1ece1ce9f982b26d90ff3e1d38ca87e4b06325c",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDrh_HQ",
+          "commit": {
+            "abbreviatedOid": "b1ece1c"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-22T07:26:45Z",
+          "updatedAt": "2026-06-22T07:28:33Z",
+          "comments": [
+            {
+              "originalPosition": 2,
+              "body": "I don't think the draft explains the use cases for multiple server identities. ",
+              "createdAt": "2026-06-22T07:26:45Z",
+              "updatedAt": "2026-06-22T07:28:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDsTddQ",
+          "commit": {
+            "abbreviatedOid": "b1ece1c"
+          },
+          "author": "yaroslavros",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-22T09:28:52Z",
+          "updatedAt": "2026-06-22T09:28:52Z",
+          "comments": [
+            {
+              "originalPosition": 2,
+              "body": "Not yet. The use cases is a separate work we will need to discuss today.\r\nHowever, I don't believe lack of defined multiple server identities use case in the document is a blocker for merging this PR.",
+              "createdAt": "2026-06-22T09:28:52Z",
+              "updatedAt": "2026-06-22T09:28:53Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 40,
+      "id": "PR_kwDORhrY5M7o4atS",
+      "title": "Removed unclear \"if any\"",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/40",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "To address https://github.com/yaroslavros/tls-supplemental-auth/issues/26",
+      "createdAt": "2026-06-21T15:21:54Z",
+      "updatedAt": "2026-06-22T07:29:18Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "no-if-any",
+      "headRefOid": "2313aab97e40c8e59e3ca66b60523c25736ac9e8",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDri1pA",
+          "commit": {
+            "abbreviatedOid": "2313aab"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-06-22T07:29:18Z",
+          "updatedAt": "2026-06-22T07:29:18Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 41,
+      "id": "PR_kwDORhrY5M7o4eCa",
+      "title": "Certificate auth is required",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/41",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "To address https://github.com/yaroslavros/tls-supplemental-auth/issues/23",
+      "createdAt": "2026-06-21T15:27:56Z",
+      "updatedAt": "2026-06-22T07:43:12Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "cert-only",
+      "headRefOid": "ae6ef6c55e8627f362078ab6a04066ea07a5e7e7",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDrod9A",
+          "commit": {
+            "abbreviatedOid": "ae6ef6c"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-06-22T07:43:12Z",
+          "updatedAt": "2026-06-22T07:43:12Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 42,
+      "id": "PR_kwDORhrY5M7o4iBq",
+      "title": "Clarified introduction",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/42",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "To address https://github.com/yaroslavros/tls-supplemental-auth/issues/22",
+      "createdAt": "2026-06-21T15:35:13Z",
+      "updatedAt": "2026-06-22T07:45:10Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "clarify-sender",
+      "headRefOid": "6c1b78badaf4554d350c9190c655d3449c31fc11",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDrpJiA",
+          "commit": {
+            "abbreviatedOid": "6c1b78b"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-06-22T07:45:10Z",
+          "updatedAt": "2026-06-22T07:45:10Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 43,
+      "id": "PR_kwDORhrY5M7o4oBU",
+      "title": "Eradicated \"immediate\"",
+      "url": "https://github.com/yaroslavros/tls-supplemental-auth/pull/43",
+      "state": "OPEN",
+      "author": "yaroslavros",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "To address https://github.com/yaroslavros/tls-supplemental-auth/issues/21",
+      "createdAt": "2026-06-21T15:45:12Z",
+      "updatedAt": "2026-06-22T07:45:55Z",
+      "baseRepository": "yaroslavros/tls-supplemental-auth",
+      "baseRefName": "main",
+      "baseRefOid": "bf4c9f8dc633c5b62f125593087157e67e00afcc",
+      "headRepository": "yaroslavros/tls-supplemental-auth",
+      "headRefName": "no-immediate",
+      "headRefOid": "60eca1308ce02fb93b70b6a0986274641d46db63",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDORhrY5M8AAAABDrpZ_A",
+          "commit": {
+            "abbreviatedOid": "60eca13"
+          },
+          "author": "tireddy2",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-06-22T07:45:55Z",
+          "updatedAt": "2026-06-22T07:45:55Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
