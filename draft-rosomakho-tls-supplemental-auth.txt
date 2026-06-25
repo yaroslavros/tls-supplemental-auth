@@ -241,8 +241,8 @@ Table of Contents
 
    Supplemental authentication flights for different request contexts
    MAY appear in any order.  The receiver determines which
-   SupplementalCertificateRequest, if any, a supplemental authentication
-   flight satisfies based on the certificate_request_context value.
+   SupplementalCertificateRequest a supplemental authentication flight
+   satisfies based on the certificate_request_context value.
 
    The following sections illustrate typical message flows.
 
