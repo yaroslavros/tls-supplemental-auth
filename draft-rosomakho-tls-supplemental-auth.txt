@@ -321,12 +321,16 @@ Finished
    additional certificate-based authentication statements from the peer.
 
    This extension MAY appear in the ClientHello or CertificateRequest
-   messages: * When included in a ClientHello, the extension indicates
-   that the client supports supplemental authentication and optionally
-   requests supplemental authentication statements from the server. *
-   When included in a CertificateRequest, the extension indicates that
-   the server supports supplemental authentication and optionally
-   requests supplemental authentication statements from the client.
+   messages:
+
+   *  When included in a ClientHello, the extension indicates that the
+      client supports supplemental authentication and optionally
+      requests supplemental authentication statements from the server.
+
+   *  When included in a CertificateRequest, the extension indicates
+      that the server supports supplemental authentication and
+      optionally requests supplemental authentication statements from
+      the client.
 
    When included in a CertificateRequest, this extension augments rather
    than replaces the semantics of the enclosing CertificateRequest.  In
@@ -411,18 +415,25 @@ Finished
    message MUST be equal to the certificate_request_context value of the
    corresponding SupplementalCertificateRequest.
 
-   The following is an example of SupplementalCertificateRequests: ~~~
-   SupplementalCertificateRequests { requests = [ // Request for the
-   Device Certificate SupplementalCertificateRequest { max_certificates
-   = 1, certificate_request_context = "device-identity", extensions = {
-   device cert specific extensions ... } },
+   The following is an example of SupplementalCertificateRequests:
 
-   // Request for the User Certificate
-   SupplementalCertificateRequest {
-     max_certificates = 1,
-     certificate_request_context = "user-identity",
-     extensions = { user cert specific extensions ... }
-   }   ] } ~~~
+   SupplementalCertificateRequests {
+     requests = [
+       // Request for the Device Certificate
+       SupplementalCertificateRequest {
+         max_certificates = 1,
+         certificate_request_context = "device-identity",
+         extensions = { device cert specific extensions ... }
+       },
+
+       // Request for the User Certificate
+       SupplementalCertificateRequest {
+         max_certificates = 1,
+         certificate_request_context = "user-identity",
+         extensions = { user cert specific extensions ... }
+       }
+     ]
+   }
 
 5.  The supplemental_certificate TLS flag
 

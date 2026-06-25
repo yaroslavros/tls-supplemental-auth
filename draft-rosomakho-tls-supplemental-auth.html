@@ -1452,15 +1452,21 @@ Finished
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-the-supplemental_certificat" class="section-name selfRef">The supplemental_certificate_requests Extension</a>
       </h2>
 <p id="section-4-1">The <code>supplemental_certificate_requests</code> TLS extension is used to signal support for supplemental authentication and to optionally request additional certificate-based authentication statements from the peer.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">This extension <span class="bcp14">MAY</span> appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages:
-* When included in a <code>ClientHello</code>, the extension indicates that the client supports supplemental authentication and optionally requests supplemental authentication statements from the server.
-* When included in a <code>CertificateRequest</code>, the extension indicates that the server supports supplemental authentication and optionally requests supplemental authentication statements from the client.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<p id="section-4-3">When included in a <code>CertificateRequest</code>, this extension augments rather than replaces the semantics of the enclosing <code>CertificateRequest</code>. In particular, a <code>CertificateRequest</code> sent during the main handshake still requests client authentication for the main handshake.<a href="#section-4-3" class="pilcrow">¶</a></p>
-<p id="section-4-4">The extension contains a list of <code>SupplementalCertificateRequest</code> structures describing requested supplemental authentication contexts.<a href="#section-4-4" class="pilcrow">¶</a></p>
-<p id="section-4-5">The extension structure is defined as follows:<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-2">This extension <span class="bcp14">MAY</span> appear in the <code>ClientHello</code> or <code>CertificateRequest</code> messages:<a href="#section-4-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-3.1">
+          <p id="section-4-3.1.1">When included in a <code>ClientHello</code>, the extension indicates that the client supports supplemental authentication and optionally requests supplemental authentication statements from the server.<a href="#section-4-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-3.2">
+          <p id="section-4-3.2.1">When included in a <code>CertificateRequest</code>, the extension indicates that the server supports supplemental authentication and optionally requests supplemental authentication statements from the client.<a href="#section-4-3.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-4-4">When included in a <code>CertificateRequest</code>, this extension augments rather than replaces the semantics of the enclosing <code>CertificateRequest</code>. In particular, a <code>CertificateRequest</code> sent during the main handshake still requests client authentication for the main handshake.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">The extension contains a list of <code>SupplementalCertificateRequest</code> structures describing requested supplemental authentication contexts.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">The extension structure is defined as follows:<a href="#section-4-6" class="pilcrow">¶</a></p>
 <span id="name-supplemental_certificate_re"></span><div id="fig-supplemental-certificate-requests">
 <figure id="figure-4">
-        <div class="alignLeft art-text artwork" id="section-4-6.1">
+        <div class="alignLeft art-text artwork" id="section-4-7.1">
 <pre>
 struct {
   uint8 max_certificates;
@@ -1477,40 +1483,41 @@ struct {
 <a href="#name-supplemental_certificate_re" class="selfRef">supplemental_certificate_requests Extension Structure</a>
         </figcaption></figure>
 </div>
-<p id="section-4-7">The requests field contains zero or more <code>SupplementalCertificateRequest</code> structures.<a href="#section-4-7" class="pilcrow">¶</a></p>
-<p id="section-4-8">If the list is empty, the sender indicates willingness to receive supplemental authentication statements without specifying any particular request contexts.<a href="#section-4-8" class="pilcrow">¶</a></p>
-<p id="section-4-9">Each <code>SupplementalCertificateRequest</code> describes a requested supplemental authentication context and the parameters associated with that request.<a href="#section-4-9" class="pilcrow">¶</a></p>
-<p id="section-4-10">The fields of <code>SupplementalCertificateRequest</code> are defined as follows:<a href="#section-4-10" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-4-11">
-        <dt id="section-4-11.1">
+<p id="section-4-8">The requests field contains zero or more <code>SupplementalCertificateRequest</code> structures.<a href="#section-4-8" class="pilcrow">¶</a></p>
+<p id="section-4-9">If the list is empty, the sender indicates willingness to receive supplemental authentication statements without specifying any particular request contexts.<a href="#section-4-9" class="pilcrow">¶</a></p>
+<p id="section-4-10">Each <code>SupplementalCertificateRequest</code> describes a requested supplemental authentication context and the parameters associated with that request.<a href="#section-4-10" class="pilcrow">¶</a></p>
+<p id="section-4-11">The fields of <code>SupplementalCertificateRequest</code> are defined as follows:<a href="#section-4-11" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-12">
+        <dt id="section-4-12.1">
 <strong>max_certificates</strong>:</dt>
-        <dd style="margin-left: 1.5em" id="section-4-11.2">
-          <p id="section-4-11.2.1">A limit on the number of supplemental authentication flights that the peer may send in response to this request. The value specifies the maximum number of Certificate authentication flights that may satisfy this request. The value <span class="bcp14">MUST</span> be greater than zero.<a href="#section-4-11.2.1" class="pilcrow">¶</a></p>
+        <dd style="margin-left: 1.5em" id="section-4-12.2">
+          <p id="section-4-12.2.1">A limit on the number of supplemental authentication flights that the peer may send in response to this request. The value specifies the maximum number of Certificate authentication flights that may satisfy this request. The value <span class="bcp14">MUST</span> be greater than zero.<a href="#section-4-12.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-4-11.3">
+<dt id="section-4-12.3">
 <strong>certificate_request_context</strong>:</dt>
-        <dd style="margin-left: 1.5em" id="section-4-11.4">
-          <p id="section-4-11.4.1">An opaque value used to identify this supplemental authentication request. This value is carried in the <code>certificate_request_context</code> field of the <code>Certificate</code> message sent in response to this request.<a href="#section-4-11.4.1" class="pilcrow">¶</a></p>
+        <dd style="margin-left: 1.5em" id="section-4-12.4">
+          <p id="section-4-12.4.1">An opaque value used to identify this supplemental authentication request. This value is carried in the <code>certificate_request_context</code> field of the <code>Certificate</code> message sent in response to this request.<a href="#section-4-12.4.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-4-12">Within a single <code>supplemental_certificate_requests</code> extension, each <code>certificate_request_context</code> value <span class="bcp14">MUST</span> be unique. If more than one <code>SupplementalCertificateRequest</code> structure is present, at most one of them <span class="bcp14">MAY</span> use an empty <code>certificate_request_context</code>.<a href="#section-4-12" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-4-13">
-        <dt id="section-4-13.1">
+<p id="section-4-13">Within a single <code>supplemental_certificate_requests</code> extension, each <code>certificate_request_context</code> value <span class="bcp14">MUST</span> be unique. If more than one <code>SupplementalCertificateRequest</code> structure is present, at most one of them <span class="bcp14">MAY</span> use an empty <code>certificate_request_context</code>.<a href="#section-4-13" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4-14">
+        <dt id="section-4-14.1">
 <strong>extensions</strong>:</dt>
-        <dd style="margin-left: 1.5em" id="section-4-13.2">
-          <p id="section-4-13.2.1">A list of extensions that describe parameters associated with this request. These extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 <code>CertificateRequest</code> message. Only extensions that are valid in a <code>CertificateRequest</code> message <span class="bcp14">MAY</span> appear in this list. The <code>supplemental_certificate_requests</code> extension <span class="bcp14">MUST NOT</span> appear in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>.<a href="#section-4-13.2.1" class="pilcrow">¶</a></p>
+        <dd style="margin-left: 1.5em" id="section-4-14.2">
+          <p id="section-4-14.2.1">A list of extensions that describe parameters associated with this request. These extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 <code>CertificateRequest</code> message. Only extensions that are valid in a <code>CertificateRequest</code> message <span class="bcp14">MAY</span> appear in this list. The <code>supplemental_certificate_requests</code> extension <span class="bcp14">MUST NOT</span> appear in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>.<a href="#section-4-14.2.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-4-14">If an extension is not present in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake. Unlike the TLS 1.3 <code>ClientHello</code> and <code>CertificateRequest</code> messages, the <code>signature_algorithms</code> extension is <span class="bcp14">OPTIONAL</span> in a <code>SupplementalCertificateRequest</code>.<a href="#section-4-14" class="pilcrow">¶</a></p>
-<p id="section-4-15">When the <code>supplemental_certificate_requests</code> extension appears in the <code>ClientHello</code>, the inherited values are taken from the client's
-<code>ClientHello</code>. When the extension appears in a <code>CertificateRequest</code>, the inherited values are taken from the parameters of the enclosing <code>CertificateRequest</code> message.<a href="#section-4-15" class="pilcrow">¶</a></p>
-<p id="section-4-16">A peer receiving the <code>supplemental_certificate_requests</code> extension <span class="bcp14">MAY</span> respond to zero or more of the contained <code>SupplementalCertificateRequest</code> structures. For a given request, the peer <span class="bcp14">MAY</span> send between zero and <code>max_certificates</code> supplemental authentication flights.<a href="#section-4-16" class="pilcrow">¶</a></p>
-<p id="section-4-17">If a peer sends a supplemental authentication flight in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding <code>SupplementalCertificateRequest</code>.<a href="#section-4-17" class="pilcrow">¶</a></p>
-<p id="section-4-18">The following is an example of SupplementalCertificateRequests:
-~~~
+<p id="section-4-15">If an extension is not present in the <code>extensions</code> list of a <code>SupplementalCertificateRequest</code>, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake. Unlike the TLS 1.3 <code>ClientHello</code> and <code>CertificateRequest</code> messages, the <code>signature_algorithms</code> extension is <span class="bcp14">OPTIONAL</span> in a <code>SupplementalCertificateRequest</code>.<a href="#section-4-15" class="pilcrow">¶</a></p>
+<p id="section-4-16">When the <code>supplemental_certificate_requests</code> extension appears in the <code>ClientHello</code>, the inherited values are taken from the client's
+<code>ClientHello</code>. When the extension appears in a <code>CertificateRequest</code>, the inherited values are taken from the parameters of the enclosing <code>CertificateRequest</code> message.<a href="#section-4-16" class="pilcrow">¶</a></p>
+<p id="section-4-17">A peer receiving the <code>supplemental_certificate_requests</code> extension <span class="bcp14">MAY</span> respond to zero or more of the contained <code>SupplementalCertificateRequest</code> structures. For a given request, the peer <span class="bcp14">MAY</span> send between zero and <code>max_certificates</code> supplemental authentication flights.<a href="#section-4-17" class="pilcrow">¶</a></p>
+<p id="section-4-18">If a peer sends a supplemental authentication flight in response to a request, the <code>certificate_request_context</code> field of the <code>Certificate</code> message <span class="bcp14">MUST</span> be equal to the <code>certificate_request_context</code> value of the corresponding <code>SupplementalCertificateRequest</code>.<a href="#section-4-18" class="pilcrow">¶</a></p>
+<p id="section-4-19">The following is an example of SupplementalCertificateRequests:<a href="#section-4-19" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-20">
+<pre>
 SupplementalCertificateRequests {
   requests = [
     // Request for the Device Certificate
@@ -1518,16 +1525,17 @@ SupplementalCertificateRequests {
       max_certificates = 1,
       certificate_request_context = "device-identity",
       extensions = { device cert specific extensions ... }
-    },<a href="#section-4-18" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4-19">
-<pre>
-// Request for the User Certificate
-SupplementalCertificateRequest {
-  max_certificates = 1,
-  certificate_request_context = "user-identity",
-  extensions = { user cert specific extensions ... }
-}   ] } ~~~
-</pre><a href="#section-4-19" class="pilcrow">¶</a>
+    },
+
+    // Request for the User Certificate
+    SupplementalCertificateRequest {
+      max_certificates = 1,
+      certificate_request_context = "user-identity",
+      extensions = { user cert specific extensions ... }
+    }
+  ]
+}
+</pre><a href="#section-4-20" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
