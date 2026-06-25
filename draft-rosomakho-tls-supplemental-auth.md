@@ -80,6 +80,8 @@ after the handshake and before the sender transmits application data.
 
 Supplemental authentication extends the existing TLS certificate authentication mechanism. It does not replace primary certificate authentication performed during the handshake and does not change the semantics of TLS authentication or authorization decisions, which remain application-specific.
 
+Supplemental authentication requires certificate-based authentication in the main handshake. An endpoint MUST NOT send supplemental authentication sequences unless that endpoint presented a non-empty certificate chain in the main handshake `Certificate` message. Consequently, this mechanism cannot be used by an endpoint authenticated only with a PSK.
+
 The mechanism defined in this document can also be used with DTLS 1.3 {{?DTLS=I-D.ietf-tls-rfc9147bis}} and protocols that use the TLS 1.3 handshake such as QUIC {{QUIC-TLS}}.
 
 # Conventions and Definitions
