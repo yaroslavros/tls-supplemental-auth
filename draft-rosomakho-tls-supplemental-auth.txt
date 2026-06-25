@@ -154,9 +154,13 @@ Table of Contents
 
    Endpoints signal support for supplemental authentication and
    optionally request additional authentication statements using a new
-   supplemental_certificate_requests extension.  When accepted, one or
-   more supplemental authentication flights may be sent after the
-   handshake and before the sender transmits application data.
+   supplemental_certificate_requests extension.  A peer that is willing
+   to provide supplemental authentication in response to this extension
+   indicates this by setting the supplemental_certificate flag in its
+   main handshake Certificate message, and then sends any supplemental
+   authentication flights after its own Finished message and before it
+   transmits application data.  When both endpoints use supplemental
+   authentication, each endpoint follows this rule independently.
 
    Supplemental authentication extends the existing TLS certificate
    authentication mechanism.  It does not replace primary certificate
