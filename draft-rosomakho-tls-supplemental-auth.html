@@ -1298,7 +1298,8 @@ svg {
 <p id="section-1-5">Endpoints signal support for supplemental authentication and optionally request additional authentication statements using a new <code>supplemental_certificate_requests</code> extension. When accepted, one or more supplemental authentication flights may be sent
 after the handshake and before the sender transmits application data.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">Supplemental authentication extends the existing TLS certificate authentication mechanism. It does not replace primary certificate authentication performed during the handshake and does not change the semantics of TLS authentication or authorization decisions, which remain application-specific.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">The mechanism defined in this document can also be used with DTLS 1.3 <span>[<a href="#DTLS" class="cite xref">DTLS</a>]</span> and protocols that use the TLS 1.3 handshake such as QUIC <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-7">Supplemental authentication requires certificate-based authentication in the main handshake. An endpoint <span class="bcp14">MUST NOT</span> send supplemental authentication sequences unless that endpoint presented a non-empty certificate chain in the main handshake <code>Certificate</code> message. Consequently, this mechanism cannot be used by an endpoint authenticated only with a PSK.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-8">The mechanism defined in this document can also be used with DTLS 1.3 <span>[<a href="#DTLS" class="cite xref">DTLS</a>]</span> and protocols that use the TLS 1.3 handshake such as QUIC <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span>.<a href="#section-1-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
