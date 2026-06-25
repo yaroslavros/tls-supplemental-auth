@@ -188,6 +188,7 @@ Finished
 The `supplemental_certificate_requests` TLS extension is used to signal support for supplemental authentication and to optionally request additional certificate-based authentication statements from the peer.
 
 This extension MAY appear in the `ClientHello` or `CertificateRequest` messages:
+
 * When included in a `ClientHello`, the extension indicates that the client supports supplemental authentication and optionally requests supplemental authentication statements from the server.
 * When included in a `CertificateRequest`, the extension indicates that the server supports supplemental authentication and optionally requests supplemental authentication statements from the client.
 
@@ -242,6 +243,7 @@ A peer receiving the `supplemental_certificate_requests` extension MAY respond t
 If a peer sends a supplemental authentication flight in response to a request, the `certificate_request_context` field of the `Certificate` message MUST be equal to the `certificate_request_context` value of the corresponding `SupplementalCertificateRequest`.
 
 The following is an example of SupplementalCertificateRequests:
+
 ~~~
 SupplementalCertificateRequests {
   requests = [
