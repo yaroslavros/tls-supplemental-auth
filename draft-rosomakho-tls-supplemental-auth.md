@@ -201,7 +201,7 @@ The extension structure is defined as follows:
 struct {
   uint8 max_certificates;
   opaque certificate_request_context<0..255>;
-  Extension extensions<2..2^16-1>;
+  Extension extensions<0..2^16-1>;
 } SupplementalCertificateRequest;
 
 struct {
@@ -232,7 +232,7 @@ Within a single `supplemental_certificate_requests` extension, each `certificate
 
 : A list of extensions that describe parameters associated with this request. These extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 `CertificateRequest` message. Only extensions that are valid in a `CertificateRequest` message MAY appear in this list. The `supplemental_certificate_requests` extension MUST NOT appear in the `extensions` list of a `SupplementalCertificateRequest`.
 
-If an extension is not present in the `extensions` list of a `SupplementalCertificateRequest`, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake.
+If an extension is not present in the `extensions` list of a `SupplementalCertificateRequest`, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake. Unlike the TLS 1.3 `ClientHello` and `CertificateRequest` messages, the `signature_algorithms` extension is OPTIONAL in a `SupplementalCertificateRequest`.
 
 When the `supplemental_certificate_requests` extension appears in the `ClientHello`, the inherited values are taken from the client's
 `ClientHello`. When the extension appears in a `CertificateRequest`, the inherited values are taken from the parameters of the enclosing `CertificateRequest` message.
