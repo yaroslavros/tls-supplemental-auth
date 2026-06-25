@@ -231,7 +231,9 @@ Within a single `supplemental_certificate_requests` extension, each `certificate
 
 **extensions**:
 
-: A list of extensions that describe parameters associated with this request. These extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 `CertificateRequest` message. Only extensions that are valid in a `CertificateRequest` message MAY appear in this list. The `supplemental_certificate_requests` extension MUST NOT appear in the `extensions` list of a `SupplementalCertificateRequest`.
+: A list of extensions that describe parameters associated with this request. Except as described below for `server_name`, these extensions follow the same syntax and semantics as extensions carried in the TLS 1.3 `CertificateRequest` message. Only extensions that are valid in a `CertificateRequest` message MAY appear in this list. The `supplemental_certificate_requests` extension MUST NOT appear in the `extensions` list of a `SupplementalCertificateRequest`.
+
+The `server_name` extension MAY appear in the `extensions` list of a `SupplementalCertificateRequest` when the containing `supplemental_certificate_requests` extension appears in the `ClientHello`. The `server_name` extension MUST NOT appear in the `extensions` list of a `SupplementalCertificateRequest` when the containing `supplemental_certificate_requests` extension appears in a `CertificateRequest`.
 
 If an extension is not present in the `extensions` list of a `SupplementalCertificateRequest`, the parameters for that extension are inherited from the corresponding values negotiated in the main handshake. Unlike the TLS 1.3 `ClientHello` and `CertificateRequest` messages, the `signature_algorithms` extension is OPTIONAL in a `SupplementalCertificateRequest`.
 
