@@ -61,7 +61,7 @@ informative:
 
 TLS 1.3 allows endpoints to authenticate using certificates during the handshake and supports optional post-handshake client authentication. However, some deployments require presenting additional certificate-based authentication statements bound to the same TLS connection, such as separate device and user identities, attestation evidence, or multiple certificate chains during cryptographic transitions.
 
-This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages immediately after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before normal application data exchange.
+This document defines Supplemental Authentication for TLS 1.3, a mechanism that allows endpoints to present additional certificate authentication messages after the handshake while preserving the authentication semantics of TLS 1.3. Supplemental authentication reuses the existing Certificate, CertificateVerify, and Finished message structure and allows endpoints to exchange one or more additional certificate-based authentication statements before sending application data or other post-handshake TLS messages.
 
 --- middle
 
@@ -73,7 +73,7 @@ Some deployments require presenting multiple certificate-based authentication st
 
 While TLS 1.3 post-handshake authentication can be used to request additional client certificates, it is rarely deployed in practice. Post-handshake authentication is explicitly prohibited in HTTP/2 ({{Section 9.2.3 of ?H2=RFC9113}}) and QUIC ({{Section 4.4 of ?QUIC-TLS=RFC9001}}).
 
-This document defines Supplemental Authentication for TLS 1.3. Supplemental authentication allows endpoints to present additional certificate-based authentication messages immediately after the handshake completes. These additional authentication statements are cryptographically bound to the TLS connection and reuse the existing `Certificate`, `CertificateVerify`, and `Finished` message structure defined by TLS 1.3.
+This document defines Supplemental Authentication for TLS 1.3. Supplemental authentication allows endpoints to present additional certificate-based authentication messages after the sender's `Finished` message and before that sender transmits application data or any other post-handshake TLS message. These additional authentication statements are cryptographically bound to the TLS connection and reuse the existing `Certificate`, `CertificateVerify`, and `Finished` message structure defined by TLS 1.3.
 
 Endpoints signal support for supplemental authentication and optionally request additional authentication statements using a new `supplemental_certificate_requests` extension. A peer that is willing to provide supplemental authentication in response to this extension indicates this by setting the `supplemental_certificate` flag in its main handshake `Certificate` message, and then sends any supplemental authentication flights after its own `Finished` message and before it transmits application data. When both endpoints use supplemental authentication, each endpoint follows this rule independently.
 
@@ -93,7 +93,7 @@ Supplemental authentication allows endpoints to present additional certificate-b
 
 A fundamental concept of this specification is the clear separation between the "Main Handshake" and the "Supplemental Authentication phase". The Main Handshake is considered complete upon the successful processing of the initial Finished messages by both endpoints, at which point a secure connection is established and application traffic keys are available.
 
-These additional authentication statements are exchanged immediately after the TLS main handshake, but before application data is exchanged, and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.
+These additional authentication statements are exchanged during the Supplemental Authentication phase, after the sender's `Finished` message and before that sender transmits application data or any other post-handshake TLS message, and are cryptographically bound to the connection using the same authentication mechanisms defined in TLS 1.3.
 
 Endpoints signal support for supplemental authentication and optionally request additional authentication statements using the `supplemental_certificate_requests` extension. This extension can appear in the `ClientHello` or `CertificateRequest` messages and contains `SupplementalCertificateRequest` structures that describe the requested authentication contexts and associated parameters.
 
